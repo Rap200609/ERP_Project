@@ -56,6 +56,15 @@
         <artifactId>itext</artifactId>
         <version>4.2.2</version>
     </dependency>
+
+    <!-- Password Hashing (Duplicate, can be removed) -->
+    <dependency>
+        <groupId>org.mindrot</groupId>
+        <artifactId>jbcrypt</artifactId>
+        <version>0.4</version>
+    </dependency>
+
+
   </dependencies>
 
 </project>

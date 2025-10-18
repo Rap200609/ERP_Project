@@ -1,4 +1,6 @@
-/target/
+target/
+bin/
+out/
 *.class
 *.log
 .DS_Store
