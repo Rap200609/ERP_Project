@@ -4,55 +4,73 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AdminDashboard extends JFrame {
-    private JPanel contentPanel;
+    private JPanel contentPanel; // main area for switching cards
+    private CardLayout cardLayout;
 
     public AdminDashboard() {
         setTitle("Admin Dashboard");
-        setSize(700, 500);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1200, 700);
+        setLocationRelativeTo(null);
 
-        // Sidebar
+        // SIDEBAR
         JPanel sidebar = new JPanel();
-        sidebar.setLayout(new GridLayout(6, 1, 0, 10));
+        sidebar.setLayout(new GridLayout(0, 1, 0, 10));
         sidebar.setPreferredSize(new Dimension(180, 0));
-        JButton usersBtn = new JButton("Manage Users");
-        JButton coursesBtn = new JButton("Manage Courses");
-        JButton sectionsBtn = new JButton("Manage Sections");
-        JButton assignmentsBtn = new JButton("Assign Instructor");
-        JButton maintenanceBtn = new JButton("Maintenance Mode");
+
+        JButton userBtn = new JButton("Manage Users");
+        JButton courseBtn = new JButton("Manage Courses");
+        JButton sectionBtn = new JButton("Manage Sections");
+        JButton assignBtn = new JButton("Assign Instructor");
+        JButton settingsBtn = new JButton("Maintenance Mode");
         JButton logoutBtn = new JButton("Logout");
 
-        sidebar.add(usersBtn);
-        sidebar.add(coursesBtn);
-        sidebar.add(sectionsBtn);
-        sidebar.add(assignmentsBtn);
-        sidebar.add(maintenanceBtn);
+        sidebar.add(userBtn);
+        sidebar.add(courseBtn);
+        sidebar.add(sectionBtn);
+        sidebar.add(assignBtn);
+        sidebar.add(settingsBtn);
         sidebar.add(logoutBtn);
 
-        // Main content panel
-        contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(new JLabel("Welcome, Admin! Please select an option."), BorderLayout.CENTER);
+        // CONTENT PANELS (CARDS)
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
 
-        // Layout: sidebar left, content center
-        setLayout(new BorderLayout());
-        add(sidebar, BorderLayout.WEST);
-        add(contentPanel, BorderLayout.CENTER);
+        AddUserPanel userPanel = new AddUserPanel();
+        CoursePanel coursePanel = new CoursePanel();
+        JPanel sectionPanel = new SectionPanel();
+        JPanel assignPanel = new JPanel();  // Replace with real AssignInstructorPanel
+        JPanel settingsPanel = new JPanel(); // Replace with real SettingsPanel
 
-        // Wire up buttons (start with Manage Users)
-        usersBtn.addActionListener(e -> showUserManagement());
-        // You can add listeners for others later
+        contentPanel.add(userPanel, "USERS");
+        contentPanel.add(coursePanel, "COURSES");
+        contentPanel.add(sectionPanel, "SECTIONS");
+        contentPanel.add(assignPanel, "ASSIGN");
+        contentPanel.add(settingsPanel, "SETTINGS");
 
+        // LAYOUT
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(sidebar, BorderLayout.WEST);
+        getContentPane().add(contentPanel, BorderLayout.CENTER);
+
+        // BUTTON HANDLERS
+        userBtn.addActionListener(e -> cardLayout.show(contentPanel, "USERS"));
+        courseBtn.addActionListener(e -> cardLayout.show(contentPanel, "COURSES"));
+        sectionBtn.addActionListener(e -> cardLayout.show(contentPanel, "SECTIONS"));
+        assignBtn.addActionListener(e -> cardLayout.show(contentPanel, "ASSIGN"));
+        settingsBtn.addActionListener(e -> cardLayout.show(contentPanel, "SETTINGS"));
         logoutBtn.addActionListener(e -> {
-            this.dispose();
-            new LoginFrame().setVisible(true);
+            dispose();
+            System.exit(0);
+            // optionally show login frame again
         });
+
+        // Show user management by default
+        cardLayout.show(contentPanel, "USERS");
     }
 
-    private void showUserManagement() {
-        contentPanel.removeAll();
-        contentPanel.add(new AddUserPanel(), BorderLayout.CENTER);
-        contentPanel.revalidate();
-        contentPanel.repaint();
+    // main method for testing
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new AdminDashboard().setVisible(true));
     }
 }
