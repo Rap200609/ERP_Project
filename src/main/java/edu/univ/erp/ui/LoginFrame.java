@@ -38,9 +38,18 @@ public class LoginFrame extends JFrame {
             AuthService.AuthResult result = AuthService.authenticate(username, password, DatabaseConfig.getAuthDataSource());
             messageLabel.setText(result.message);
             if (result.success) {
-                // TODO: Open dashboard for result.role
-                JOptionPane.showMessageDialog(this, "Welcome " + result.role + "!");
-                // We can now open the next window based on role
+                this.setVisible(false);
+                switch(result.role) {
+                    case "ADMIN":
+                        new AdminDashboard().setVisible(true);
+                        break;
+                    case "INSTRUCTOR":
+                        new InstructorDashboard().setVisible(true);
+                        break;
+                    case "STUDENT":
+                        new StudentDashboard().setVisible(true);
+                        break;
+                }
             }
         });
     }
