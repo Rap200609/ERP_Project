@@ -4,77 +4,101 @@ import javax.swing.*;
 import java.awt.*;
 
 public class AdminDashboard extends JFrame {
-    private JPanel contentPanel; // main area for switching cards
-    private CardLayout cardLayout;
+    private JPanel contentPanel;
 
     public AdminDashboard() {
         setTitle("Admin Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1200, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        
+        setLayout(new BorderLayout());
 
-        // SIDEBAR
+        // Left sidebar
         JPanel sidebar = new JPanel();
-        sidebar.setLayout(new GridLayout(0, 1, 0, 10));
-        sidebar.setPreferredSize(new Dimension(180, 0));
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setPreferredSize(new Dimension(200, 0));
+        sidebar.setBackground(new Color(240, 240, 240));
 
-        JButton userBtn = new JButton("Manage Users");
-        JButton courseBtn = new JButton("Manage Courses");
-        JButton sectionBtn = new JButton("Manage Sections");
-        JButton assignBtn = new JButton("Assign Instructor");
-        JButton settingsBtn = new JButton("Maintenance Mode");
-        JButton backupBtn = new JButton("Backup/Restore");
-        JButton logoutBtn = new JButton("Logout");
+        String[] menuItems = {
+            "Manage Users",
+            "Manage Courses",
+            "Manage Sections",
+            "Assign Instructor",
+            "Maintenance Mode",
+            "Backup/Restore",
+            "Logout"
+        };
 
-        sidebar.add(userBtn);
-        sidebar.add(courseBtn);
-        sidebar.add(sectionBtn);
-        sidebar.add(assignBtn);
-        sidebar.add(settingsBtn);
-        sidebar.add(backupBtn);
-        sidebar.add(logoutBtn);
+        for (String item : menuItems) {
+            JButton btn = createMenuButton(item);
+            sidebar.add(btn);
+            sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+        }
 
-        // CONTENT PANELS (CARDS)
-        cardLayout = new CardLayout();
-        contentPanel = new JPanel(cardLayout);
+        add(sidebar, BorderLayout.WEST);
 
-        AddUserPanel userPanel = new AddUserPanel();
-        CoursePanel coursePanel = new CoursePanel();
-        SectionPanel sectionPanel = new SectionPanel();
-        AssignInstructorPanel assignPanel = new AssignInstructorPanel();
-        MaintenanceModePanel settingsPanel = new MaintenanceModePanel();
-        BackupRestorePanel backupPanel = new BackupRestorePanel();
+        // Content area
+        contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        add(contentPanel, BorderLayout.CENTER);
 
-        contentPanel.add(userPanel, "USERS");
-        contentPanel.add(coursePanel, "COURSES");
-        contentPanel.add(sectionPanel, "SECTIONS");
-        contentPanel.add(assignPanel, "ASSIGN_INSTRUCTOR");
-        contentPanel.add(settingsPanel, "SETTINGS");
-        contentPanel.add(backupPanel, "BACKUP");
-
-        // LAYOUT
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(sidebar, BorderLayout.WEST);
-        getContentPane().add(contentPanel, BorderLayout.CENTER);
-
-        // BUTTON HANDLERS
-        userBtn.addActionListener(e -> cardLayout.show(contentPanel, "USERS"));
-        courseBtn.addActionListener(e -> cardLayout.show(contentPanel, "COURSES"));
-        sectionBtn.addActionListener(e -> cardLayout.show(contentPanel, "SECTIONS"));
-        assignBtn.addActionListener(e -> cardLayout.show(contentPanel, "ASSIGN_INSTRUCTOR"));
-        settingsBtn.addActionListener(e -> cardLayout.show(contentPanel, "SETTINGS"));
-        backupBtn.addActionListener(e -> cardLayout.show(contentPanel, "BACKUP"));
-        logoutBtn.addActionListener(e -> {
-            dispose();
-            System.exit(0);
-        });
-
-        // Show user management by default
-        cardLayout.show(contentPanel, "USERS");
+        showPanel("Manage Users");
     }
 
-    // main method for testing
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AdminDashboard().setVisible(true));
+    private JButton createMenuButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setMaximumSize(new Dimension(180, 40));
+        btn.setPreferredSize(new Dimension(180, 40));
+        btn.addActionListener(e -> handleMenuClick(text));
+        return btn;
+    }
+
+    private void handleMenuClick(String menuItem) {
+        if ("Logout".equals(menuItem)) {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to logout?", 
+                "Logout", 
+                JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+                new edu.univ.erp.ui.LoginFrame().setVisible(true);
+            }
+        } else {
+            showPanel(menuItem);
+        }
+    }
+
+    private void showPanel(String panelName) {
+        contentPanel.removeAll();
+        
+        JPanel panel = null;
+        switch (panelName) {
+            case "Manage Users":
+                panel = new AddUserPanel();
+                break;
+            case "Manage Courses":
+                panel = new CoursePanel();
+                break;
+            case "Manage Sections":
+                panel = new SectionPanel();
+                break;
+            case "Assign Instructor":
+                panel = new AssignInstructorPanel();
+                break;
+            case "Maintenance Mode":
+                panel = new MaintenanceModePanel();
+                break;
+            case "Backup/Restore":
+                panel = new BackupRestorePanel();
+                break;
+        }
+
+        if (panel != null) {
+            contentPanel.add(panel, BorderLayout.CENTER);
+            contentPanel.revalidate();
+            contentPanel.repaint();
+        }
     }
 }

@@ -14,9 +14,23 @@ public class StudentTimetablePanel extends JPanel {
         this.studentId = studentId;
         setLayout(new BorderLayout());
         String[] cols = {"Section", "Course", "Day", "Time", "Room"};
-        model = new DefaultTableModel(cols, 0);
+        model = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(model);
         add(new JScrollPane(table), BorderLayout.CENTER);
+        
+        // Add listener for real-time refresh
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                loadTimetable();
+            }
+        });
+        
         loadTimetable();
     }
 
