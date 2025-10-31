@@ -23,6 +23,7 @@ public class AdminDashboard extends JFrame {
         JButton sectionBtn = new JButton("Manage Sections");
         JButton assignBtn = new JButton("Assign Instructor");
         JButton settingsBtn = new JButton("Maintenance Mode");
+        JButton backupBtn = new JButton("Backup/Restore");
         JButton logoutBtn = new JButton("Logout");
 
         sidebar.add(userBtn);
@@ -30,6 +31,7 @@ public class AdminDashboard extends JFrame {
         sidebar.add(sectionBtn);
         sidebar.add(assignBtn);
         sidebar.add(settingsBtn);
+        sidebar.add(backupBtn);
         sidebar.add(logoutBtn);
 
         // CONTENT PANELS (CARDS)
@@ -38,15 +40,17 @@ public class AdminDashboard extends JFrame {
 
         AddUserPanel userPanel = new AddUserPanel();
         CoursePanel coursePanel = new CoursePanel();
-        JPanel sectionPanel = new SectionPanel();
-        JPanel assignPanel = new JPanel();  // Replace with real AssignInstructorPanel
-        JPanel settingsPanel = new JPanel(); // Replace with real SettingsPanel
+        SectionPanel sectionPanel = new SectionPanel();
+        AssignInstructorPanel assignPanel = new AssignInstructorPanel();
+        MaintenanceModePanel settingsPanel = new MaintenanceModePanel();
+        BackupRestorePanel backupPanel = new BackupRestorePanel();
 
         contentPanel.add(userPanel, "USERS");
         contentPanel.add(coursePanel, "COURSES");
         contentPanel.add(sectionPanel, "SECTIONS");
-        contentPanel.add(assignPanel, "ASSIGN");
+        contentPanel.add(assignPanel, "ASSIGN_INSTRUCTOR");
         contentPanel.add(settingsPanel, "SETTINGS");
+        contentPanel.add(backupPanel, "BACKUP");
 
         // LAYOUT
         getContentPane().setLayout(new BorderLayout());
@@ -57,12 +61,12 @@ public class AdminDashboard extends JFrame {
         userBtn.addActionListener(e -> cardLayout.show(contentPanel, "USERS"));
         courseBtn.addActionListener(e -> cardLayout.show(contentPanel, "COURSES"));
         sectionBtn.addActionListener(e -> cardLayout.show(contentPanel, "SECTIONS"));
-        assignBtn.addActionListener(e -> cardLayout.show(contentPanel, "ASSIGN"));
+        assignBtn.addActionListener(e -> cardLayout.show(contentPanel, "ASSIGN_INSTRUCTOR"));
         settingsBtn.addActionListener(e -> cardLayout.show(contentPanel, "SETTINGS"));
+        backupBtn.addActionListener(e -> cardLayout.show(contentPanel, "BACKUP"));
         logoutBtn.addActionListener(e -> {
             dispose();
             System.exit(0);
-            // optionally show login frame again
         });
 
         // Show user management by default
