@@ -36,6 +36,7 @@ public class StudentDashboard extends JFrame {
             "My Timetable",
             "View Grades",
             "Download Transcript",
+            "Change Password",
             "Logout"
         };
 
@@ -83,7 +84,11 @@ public class StudentDashboard extends JFrame {
                 dispose();
                 new edu.univ.erp.ui.LoginFrame().setVisible(true);
             }
-        } else {
+        }
+        else if ("Change Password".equals(menuItem)) { 
+            new ChangePasswordDialog(this, studentId).setVisible(true);
+        }
+        else {
             showPanel(menuItem);
         }
     }

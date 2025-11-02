@@ -37,11 +37,11 @@ public class AddUserPanel extends JPanel {
         passField = new JPasswordField(15);
         add(passField, gbc);
 
-        // Role row
+        // Role row - NOW WITH ADMIN!
         gbc.gridx = 0; gbc.gridy = 2;
         add(new JLabel("Role:"), gbc);
         gbc.gridx = 1;
-        roleBox = new JComboBox<>(new String[]{"STUDENT", "INSTRUCTOR"});
+        roleBox = new JComboBox<>(new String[]{"STUDENT", "INSTRUCTOR", "ADMIN"});  // ← ADDED ADMIN
         add(roleBox, gbc);
 
         // Extra fields Panel (Student/Instructor info)
@@ -116,6 +116,16 @@ public class AddUserPanel extends JPanel {
                 ResultSet keys = stmt.getGeneratedKeys();
                 if (keys.next()) userId = keys.getInt(1);
 
+                // ← ADMIN HANDLING: No extra fields needed
+                if ("ADMIN".equals(role)) {
+                    // Admin only needs entry in users_auth, nothing else
+                    messageLabel.setText("Admin user added successfully!");
+                    userField.setText(""); 
+                    passField.setText("");
+                    loadUserTable();
+                    return;
+                }
+
                 // Now insert into erp_main for role-specific info
                 if ("STUDENT".equals(role)) {
                     String rollNo = rollNoField.getText().trim();
@@ -167,6 +177,7 @@ public class AddUserPanel extends JPanel {
                 loadUserTable();
             } catch (Exception ex) {
                 messageLabel.setText("Error: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -198,7 +209,12 @@ public class AddUserPanel extends JPanel {
         gbc.insets = new Insets(4, 4, 4, 4); gbc.anchor = GridBagConstraints.WEST;
 
         String role = (String) roleBox.getSelectedItem();
-        if ("STUDENT".equals(role)) {
+        
+        // ← ADMIN HANDLING: No extra fields
+        if ("ADMIN".equals(role)) {
+            // No extra fields needed for admin
+            extraFieldsPanel.add(new JLabel("No additional fields required for Admin."), gbc);
+        } else if ("STUDENT".equals(role)) {
             gbc.gridx = 0; gbc.gridy = 0; extraFieldsPanel.add(new JLabel("Roll No:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(rollNoField, gbc);
             gbc.gridx = 0; gbc.gridy = 1; extraFieldsPanel.add(new JLabel("Program:"), gbc);
@@ -207,8 +223,7 @@ public class AddUserPanel extends JPanel {
             gbc.gridx = 1; extraFieldsPanel.add(yearField, gbc);
             gbc.gridx = 0; gbc.gridy = 3; extraFieldsPanel.add(new JLabel("Email:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(studentEmailField, gbc);
-        }
-        if ("INSTRUCTOR".equals(role)) {
+        } else if ("INSTRUCTOR".equals(role)) {
             gbc.gridx = 0; gbc.gridy = 0; extraFieldsPanel.add(new JLabel("Employee ID:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(empIdField, gbc);
             gbc.gridx = 0; gbc.gridy = 1; extraFieldsPanel.add(new JLabel("Department:"), gbc);
@@ -237,7 +252,7 @@ public class AddUserPanel extends JPanel {
                 });
             }
         } catch (Exception e) {
-            // Could log or show an error message here
+            e.printStackTrace();
         }
     }
 
@@ -250,6 +265,14 @@ public class AddUserPanel extends JPanel {
                 stmt.setInt(1, userId);
                 stmt.executeUpdate();
             }
+            
+            // ← ADMIN HANDLING: No extra tables to delete from
+            if ("ADMIN".equals(role)) {
+                // Admin only exists in users_auth
+                loadUserTable();
+                return;
+            }
+            
             // Delete from students/instructors in erp_main
             try (Connection connMain = DatabaseConfig.getMainDataSource().getConnection()) {
                 if ("STUDENT".equals(role)) {
@@ -274,6 +297,13 @@ public class AddUserPanel extends JPanel {
     }
 
     private void editUserDialog(int userId, String role) {
+        // ← ADMIN HANDLING: Simplified edit dialog
+        if ("ADMIN".equals(role)) {
+            editAdminDialog(userId);
+            return;
+        }
+        
+        // Rest of your existing edit code for STUDENT/INSTRUCTOR...
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit User", Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setSize(400, 420);
         dialog.setLocationRelativeTo(this);
@@ -285,12 +315,12 @@ public class AddUserPanel extends JPanel {
         JLabel roleLabel = new JLabel(role);
         JPasswordField passField = new JPasswordField(16);
 
-        JTextField field1 = new JTextField(15); // student:rollNo or instructor:empId
-        JTextField field2 = new JTextField(15); // student:program or instructor:dept
-        JTextField field3 = new JTextField(15); // student:year or instructor:email
-        JTextField field4 = new JTextField(18); // student:email or -none for instructor
+        JTextField field1 = new JTextField(15);
+        JTextField field2 = new JTextField(15);
+        JTextField field3 = new JTextField(15);
+        JTextField field4 = new JTextField(18);
 
-        // Load the user's info from users_auth
+        // Load user info
         try (Connection conn = DatabaseConfig.getAuthDataSource().getConnection();
             PreparedStatement stmt = conn.prepareStatement("SELECT username FROM users_auth WHERE user_id=?")) {
             stmt.setInt(1, userId);
@@ -304,7 +334,6 @@ public class AddUserPanel extends JPanel {
         }
 
         if ("STUDENT".equals(role)) {
-            // Load student fields
             try (Connection conn = DatabaseConfig.getMainDataSource().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(
                     "SELECT roll_no, program, year, email FROM students WHERE user_id=?")) {
@@ -321,7 +350,6 @@ public class AddUserPanel extends JPanel {
                 return;
             }
         } else if ("INSTRUCTOR".equals(role)) {
-            // Load instructor fields
             try (Connection conn = DatabaseConfig.getMainDataSource().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(
                     "SELECT employee_id, department, email FROM instructors WHERE user_id=?")) {
@@ -384,7 +412,6 @@ public class AddUserPanel extends JPanel {
             String newPass = new String(passField.getPassword());
 
             try (Connection conn = DatabaseConfig.getAuthDataSource().getConnection()) {
-                // Update users_auth
                 if (newPass.isEmpty()) {
                     PreparedStatement stmt = conn.prepareStatement(
                         "UPDATE users_auth SET username=? WHERE user_id=?");
@@ -392,7 +419,7 @@ public class AddUserPanel extends JPanel {
                     stmt.setInt(2, userId);
                     stmt.executeUpdate();
                 } else {
-                    String hash = org.mindrot.jbcrypt.BCrypt.hashpw(newPass, org.mindrot.jbcrypt.BCrypt.gensalt(10));
+                    String hash = BCrypt.hashpw(newPass, BCrypt.gensalt(10));
                     PreparedStatement stmt = conn.prepareStatement(
                         "UPDATE users_auth SET username=?, password_hash=? WHERE user_id=?");
                     stmt.setString(1, username);
@@ -405,7 +432,6 @@ public class AddUserPanel extends JPanel {
                 return;
             }
 
-            // Update student/instructor details
             if ("STUDENT".equals(role)) {
                 String rollNo = field1.getText().trim();
                 String program = field2.getText().trim();
@@ -449,7 +475,82 @@ public class AddUserPanel extends JPanel {
         dialog.setVisible(true);
     }
 
-    
+    // ← NEW METHOD: Simplified edit dialog for ADMIN
+    private void editAdminDialog(int userId) {
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Admin", Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setSize(350, 200);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JTextField usernameField = new JTextField(18);
+        JPasswordField passField = new JPasswordField(18);
+
+        // Load admin info
+        try (Connection conn = DatabaseConfig.getAuthDataSource().getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT username FROM users_auth WHERE user_id=?")) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                usernameField.setText(rs.getString("username"));
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error loading admin: " + ex.getMessage());
+            return;
+        }
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        dialog.add(new JLabel("Username:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(usernameField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        dialog.add(new JLabel("New Password:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(passField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        dialog.add(new JLabel("(Leave blank to keep current)"), gbc);
+
+        JButton saveBtn = new JButton("Save Changes");
+        JLabel infoLabel = new JLabel();
+        
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        dialog.add(saveBtn, gbc);
+        gbc.gridy = 4;
+        dialog.add(infoLabel, gbc);
+
+        saveBtn.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            String newPass = new String(passField.getPassword());
+
+            try (Connection conn = DatabaseConfig.getAuthDataSource().getConnection()) {
+                if (newPass.isEmpty()) {
+                    PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE users_auth SET username=? WHERE user_id=?");
+                    stmt.setString(1, username);
+                    stmt.setInt(2, userId);
+                    stmt.executeUpdate();
+                } else {
+                    String hash = BCrypt.hashpw(newPass, BCrypt.gensalt(10));
+                    PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE users_auth SET username=?, password_hash=? WHERE user_id=?");
+                    stmt.setString(1, username);
+                    stmt.setString(2, hash);
+                    stmt.setInt(3, userId);
+                    stmt.executeUpdate();
+                }
+                infoLabel.setText("Updated successfully!");
+                loadUserTable();
+            } catch (Exception ex) {
+                infoLabel.setText("Error: " + ex.getMessage());
+            }
+        });
+
+        dialog.setVisible(true);
+    }
 
     private Integer parseInt(JTextField field) {
         try {

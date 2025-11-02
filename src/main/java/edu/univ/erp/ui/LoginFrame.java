@@ -48,7 +48,7 @@ public class LoginFrame extends JFrame {
                 this.setVisible(false);
                 switch (result.role.toUpperCase()) {
                     case "ADMIN":
-                        SwingUtilities.invokeLater(() -> new AdminDashboard().setVisible(true));
+                        SwingUtilities.invokeLater(() -> new AdminDashboard(result.userId).setVisible(true));
                         break;
                     case "INSTRUCTOR":
                         SwingUtilities.invokeLater(() -> new InstructorDashboard(result.userId).setVisible(true));

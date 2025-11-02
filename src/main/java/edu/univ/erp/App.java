@@ -1,13 +1,26 @@
 package edu.univ.erp;
 
+import javax.swing.SwingUtilities;
+import com.formdev.flatlaf.FlatLightLaf;
+import edu.univ.erp.ui.LoginFrame;
+
 /**
- * Hello world!
- *
+ * University ERP System - Main Entry Point
  */
 public class App 
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        // Set modern look and feel
+        try {
+            FlatLightLaf.setup();
+        } catch (Exception e) {
+            System.err.println("Failed to set FlatLaf look and feel: " + e.getMessage());
+            // Continue with default look and feel
+        }
+        
+        SwingUtilities.invokeLater(() -> {
+            new LoginFrame().setVisible(true);
+        });
     }
 }

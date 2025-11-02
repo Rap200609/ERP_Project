@@ -220,20 +220,22 @@ public class SectionPanel extends JPanel {
 
     private void editSectionDialog(int sectionId) {
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Section", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(350, 420);
+        dialog.setSize(450, 450);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(7, 7, 7, 7); gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(7, 7, 7, 7); 
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField codeField = new JTextField(6);
+        JTextField codeField = new JTextField(15);
         JComboBox<String> courseField = new JComboBox<>();
-        JTextField dayField = new JTextField(10);
-        JTextField timeField = new JTextField(12);
-        JTextField roomField = new JTextField(10);
-        JTextField semesterField = new JTextField(10);
-        JTextField yearField = new JTextField(8);
-        JTextField capacityField = new JTextField(8);
+        JTextField dayField = new JTextField(15);
+        JTextField timeField = new JTextField(15);
+        JTextField roomField = new JTextField(15);
+        JTextField semesterField = new JTextField(15);
+        JTextField yearField = new JTextField(15);
+        JTextField capacityField = new JTextField(15);
 
         ArrayList<Integer> localCourseIds = new ArrayList<>();
         try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
@@ -260,37 +262,65 @@ public class SectionPanel extends JPanel {
                 timeField.setText(rs.getString("time"));
                 roomField.setText(rs.getString("room"));
                 semesterField.setText(rs.getString("semester"));
-                yearField.setText(rs.getString("year"));
+                yearField.setText(String.valueOf(rs.getInt("year")));
                 capacityField.setText(String.valueOf(rs.getInt("capacity")));
             }
         } catch(Exception ex){
             JOptionPane.showMessageDialog(this,"Error loading section: "+ex.getMessage());
             return;
         }
-        courseField.setSelectedIndex(courseIdx);
+        if(courseIdx >= 0 && courseIdx < localCourseIds.size()) {
+            courseField.setSelectedIndex(courseIdx);
+        } else {
+            courseField.setSelectedIndex(0);
+        }
 
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=0; dialog.add(new JLabel("Section Code:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(codeField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=1; dialog.add(new JLabel("Course:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(courseField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=2; dialog.add(new JLabel("Day:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(dayField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=3; dialog.add(new JLabel("Time:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(timeField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=4; dialog.add(new JLabel("Room:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(roomField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=5; dialog.add(new JLabel("Semester:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(semesterField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=6; dialog.add(new JLabel("Year:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(yearField, gbc);
+        
+        gbc.weightx = 0.0;
         gbc.gridx=0; gbc.gridy=7; dialog.add(new JLabel("Capacity:"), gbc);
+        gbc.weightx = 1.0;
         gbc.gridx=1; dialog.add(capacityField, gbc);
 
         JButton saveBtn = new JButton("Save Changes");
         JLabel infoLabel = new JLabel();
 
+        gbc.weightx = 1.0;
         gbc.gridx=0; gbc.gridy=8; gbc.gridwidth=2; dialog.add(saveBtn, gbc);
-        gbc.gridy=9; dialog.add(infoLabel, gbc);
+        gbc.gridy=9; gbc.gridwidth=2; dialog.add(infoLabel, gbc);
 
         saveBtn.addActionListener(e -> {
             int courseIdxSel = courseField.getSelectedIndex();

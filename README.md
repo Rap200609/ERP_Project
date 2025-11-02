@@ -1,0 +1,39 @@
+# University ERP System
+
+A comprehensive Enterprise Resource Planning system for university course and enrollment management, built with Java Swing and MySQL.
+
+## Features
+
+- **Student Portal**: Browse courses, register/drop sections, view timetable and grades, download transcripts
+- **Instructor Portal**: Manage sections, enter grades, view statistics, export data
+- **Admin Portal**: User management, course/section management, maintenance mode, backup/restore
+
+## Quick Start
+
+1. **Setup Database**: Run SQL scripts in `database/` folder (see `database/README_DATABASE_SETUP.md`)
+2. **Update Configuration**: Edit `src/main/java/edu/univ/erp/data/DatabaseConfig.java` with your MySQL credentials
+3. **Run Application**: Execute `App.java` as main class
+
+See `HOW_TO_RUN.md` for detailed instructions.
+
+## Default Test Accounts
+
+- **admin1** / admin
+- **inst1** / instructor
+- **stu1** / student
+- **stu2** / student
+
+## Project Status
+
+✅ **100% Complete** - All required features implemented
+
+See `FINAL_STATUS.md` for complete status and `PROJECT_REPORT.md` for detailed documentation.
+
+## Documentation
+
+- `HOW_TO_RUN.md` - Setup and running guide
+- `TEST_PLAN.md` - Comprehensive test plan
+- `TEST_SUMMARY.md` - Test results template
+- `PROJECT_REPORT.md` - Complete project report
+- `database/README_DATABASE_SETUP.md` - Database setup guide
+

@@ -33,6 +33,7 @@ public class InstructorDashboard extends JFrame {
             "Grade Entry (Live)",
             "Class Stats",
             "Export CSV",
+            "Change Password",
             "Logout"
         };
 
@@ -79,7 +80,11 @@ public class InstructorDashboard extends JFrame {
                 dispose();
                 new edu.univ.erp.ui.LoginFrame().setVisible(true);
             }
-        } else {
+        } 
+        else if ("Change Password".equals(menuItem)) { 
+            new ChangePasswordDialog(this, instructorId).setVisible(true);
+        }
+        else {
             showPanel(menuItem);
         }
     }

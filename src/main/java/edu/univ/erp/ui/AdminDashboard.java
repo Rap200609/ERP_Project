@@ -5,8 +5,10 @@ import java.awt.*;
 
 public class AdminDashboard extends JFrame {
     private JPanel contentPanel;
+    private int adminId;
 
-    public AdminDashboard() {
+    public AdminDashboard(int adminId) {
+        this.adminId = adminId;
         setTitle("Admin Dashboard");
         setSize(1200, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -27,6 +29,7 @@ public class AdminDashboard extends JFrame {
             "Assign Instructor",
             "Maintenance Mode",
             "Backup/Restore",
+            "Change Password",
             "Logout"
         };
 
@@ -65,7 +68,11 @@ public class AdminDashboard extends JFrame {
                 dispose();
                 new edu.univ.erp.ui.LoginFrame().setVisible(true);
             }
-        } else {
+        } 
+        else if ("Change Password".equals(menuItem)) {
+            new ChangePasswordDialog(this, adminId).setVisible(true);
+        }
+        else {
             showPanel(menuItem);
         }
     }
