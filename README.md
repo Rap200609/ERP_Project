@@ -18,10 +18,10 @@ See `HOW_TO_RUN.md` for detailed instructions.
 
 ## Default Test Accounts
 
-- **admin1** / admin
-- **inst1** / instructor
-- **stu1** / student
-- **stu2** / student
+- **admin** / admin123
+- **inst1** / inst1_1
+- **stu1** / stu1_1
+- **stu2** / stu2_2
 
 ## Project Status
 
