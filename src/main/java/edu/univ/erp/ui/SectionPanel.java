@@ -5,6 +5,13 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import edu.univ.erp.api.SectionApi;
+import edu.univ.erp.domain.Course;
+import edu.univ.erp.domain.Section;
 
 public class SectionPanel extends JPanel {
     private JComboBox<String> courseBox;
@@ -13,6 +20,7 @@ public class SectionPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTable sectionTable;
     private ArrayList<Integer> courseIds = new ArrayList<>();
+    private final SectionApi sectionApi = new SectionApi();
 
     public SectionPanel() {
         setLayout(new GridBagLayout());
@@ -126,18 +134,9 @@ public class SectionPanel extends JPanel {
                 messageLabel.setText("Year/capacity must be numbers, capacity > 0.");
                 return;
             }
-            String sql = "INSERT INTO sections (course_id, section_code, day, time, room, semester, year, capacity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, courseIds.get(selCourse));
-                stmt.setString(2, secCode);
-                stmt.setString(3, day);
-                stmt.setString(4, time);
-                stmt.setString(5, room);
-                stmt.setString(6, semester);
-                stmt.setInt(7, year);
-                stmt.setInt(8, capacity);
-                stmt.executeUpdate();
+            try {
+                Section s = new Section(0, courseIds.get(selCourse), secCode, day, time, room, semester, year, capacity);
+                sectionApi.addSection(s);
                 messageLabel.setText("Section added successfully!");
                 clearFields();
                 loadSectionTable();
@@ -167,38 +166,36 @@ public class SectionPanel extends JPanel {
     private void loadCourseList() {
         courseBox.removeAllItems();
         courseIds.clear();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT course_id, code, title FROM courses")) {
-            while(rs.next()) {
-                courseBox.addItem(rs.getString("code")+" - "+rs.getString("title"));
-                courseIds.add(rs.getInt("course_id"));
-            }
-        } catch(Exception ex) {}
+        List<Course> courses = sectionApi.getCourses();
+        for (Course c : courses) {
+            courseBox.addItem(c.getDisplayName());
+            courseIds.add(c.getCourseId());
+        }
     }
 
     private void loadSectionTable() {
         tableModel.setRowCount(0);
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                "SELECT section_id, section_code, c.code, c.title, day, time, room, semester, year, capacity FROM sections s JOIN courses c ON s.course_id=c.course_id")) {
-            while(rs.next()) {
-                String course = rs.getString("code")+" - "+rs.getString("title");
+        try {
+            List<Course> courses = sectionApi.getCourses();
+            Map<Integer, String> courseIdToName = new HashMap<>();
+            for (Course c : courses) courseIdToName.put(c.getCourseId(), c.getDisplayName());
+
+            for (Section s : sectionApi.getSections()) {
+                String courseName = courseIdToName.getOrDefault(s.getCourseId(), String.valueOf(s.getCourseId()));
                 tableModel.addRow(new Object[]{
-                    rs.getInt("section_id"),
-                    rs.getString("section_code"),
-                    course,
-                    rs.getString("day"),
-                    rs.getString("time"),
-                    rs.getString("room"),
-                    rs.getString("semester"),
-                    rs.getInt("year"),
-                    rs.getInt("capacity"),
+                    s.getSectionId(),
+                    s.getSectionCode(),
+                    courseName,
+                    s.getDay(),
+                    s.getTime(),
+                    s.getRoom(),
+                    s.getSemester(),
+                    s.getYear(),
+                    s.getCapacity(),
                     "Edit", "Delete"
                 });
             }
-        } catch(Exception ex){ }
+        } catch (Exception ignored) { }
     }
 
     private void clearFields() {
@@ -208,10 +205,8 @@ public class SectionPanel extends JPanel {
     }
 
     private void deleteSection(int sectionId) {
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM sections WHERE section_id=?")) {
-            stmt.setInt(1, sectionId);
-            stmt.executeUpdate();
+        try {
+            sectionApi.deleteSection(sectionId);
             loadSectionTable();
         } catch(Exception ex){
             JOptionPane.showMessageDialog(this, "Error deleting section: "+ex.getMessage());
@@ -238,32 +233,25 @@ public class SectionPanel extends JPanel {
         JTextField capacityField = new JTextField(15);
 
         ArrayList<Integer> localCourseIds = new ArrayList<>();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT course_id, code, title FROM courses")) {
-            while(rs.next()) {
-                courseField.addItem(rs.getString("code")+" - "+rs.getString("title"));
-                localCourseIds.add(rs.getInt("course_id"));
-            }
-        } catch(Exception ex) { }
+        List<Course> allCourses = sectionApi.getCourses();
+        for (Course c : allCourses) {
+            courseField.addItem(c.getDisplayName());
+            localCourseIds.add(c.getCourseId());
+        }
 
         // Load current data
         int courseIdx = 0;
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-            PreparedStatement stmt = conn.prepareStatement(
-                "SELECT course_id, section_code, day, time, room, semester, year, capacity FROM sections WHERE section_id=?")) {
-            stmt.setInt(1, sectionId);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) {
-                codeField.setText(rs.getString("section_code"));
-                int cid = rs.getInt("course_id");
-                courseIdx = localCourseIds.indexOf(cid);
-                dayField.setText(rs.getString("day"));
-                timeField.setText(rs.getString("time"));
-                roomField.setText(rs.getString("room"));
-                semesterField.setText(rs.getString("semester"));
-                yearField.setText(String.valueOf(rs.getInt("year")));
-                capacityField.setText(String.valueOf(rs.getInt("capacity")));
+        try {
+            Section s = sectionApi.getSection(sectionId);
+            if (s != null) {
+                codeField.setText(s.getSectionCode());
+                courseIdx = localCourseIds.indexOf(s.getCourseId());
+                dayField.setText(s.getDay());
+                timeField.setText(s.getTime());
+                roomField.setText(s.getRoom());
+                semesterField.setText(s.getSemester());
+                yearField.setText(String.valueOf(s.getYear()));
+                capacityField.setText(String.valueOf(s.getCapacity()));
             }
         } catch(Exception ex){
             JOptionPane.showMessageDialog(this,"Error loading section: "+ex.getMessage());
@@ -345,19 +333,9 @@ public class SectionPanel extends JPanel {
                 infoLabel.setText("Year/capacity must be numbers, cap>0.");
                 return;
             }
-            try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE sections SET course_id=?, section_code=?, day=?, time=?, room=?, semester=?, year=?, capacity=? WHERE section_id=?")) {
-                stmt.setInt(1, localCourseIds.get(courseIdxSel));
-                stmt.setString(2, secCode);
-                stmt.setString(3, day);
-                stmt.setString(4, time);
-                stmt.setString(5, room);
-                stmt.setString(6, semester);
-                stmt.setInt(7, year);
-                stmt.setInt(8, capacity);
-                stmt.setInt(9, sectionId);
-                stmt.executeUpdate();
+            try {
+                Section updated = new Section(sectionId, localCourseIds.get(courseIdxSel), secCode, day, time, room, semester, year, capacity);
+                sectionApi.updateSection(updated);
                 infoLabel.setText("Section updated!");
                 loadSectionTable();
             } catch(Exception ex) {
