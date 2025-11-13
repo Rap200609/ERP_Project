@@ -9,7 +9,7 @@
 2. **MySQL Database Server**
    - Version: MySQL 8.0 or higher
    - Running on: `localhost:3306`
-   - Default user: `root` (or update in DatabaseConfig.java)
+   - Default user: `root`
 
 3. **Maven** (Optional, for building)
    - Version: 3.6 or higher
@@ -26,7 +26,11 @@ Navigate to the `database/` folder and run the SQL scripts in order:
 mysql -u root -p < database/01_schema_auth.sql
 mysql -u root -p < database/02_schema_main.sql
 mysql -u root -p < database/03_seed_data.sql
+```
 
+Notes:
+- The script `database/04_add_lockout_columns.sql` is not required and has been removed.
+- Ensure MySQL is running on `localhost:3306` and accessible with your credentials.
 
 ## Running the Application
 
@@ -36,6 +40,7 @@ mvn clean compile
 
 # Run the application
 mvn exec:java -Dexec.mainClass="edu.univ.erp.App"
+```
 
 
 ## Default Test Accounts

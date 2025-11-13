@@ -1,18 +1,31 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.admin.AdminSectionApi;
+import edu.univ.erp.api.common.ApiResponse;
+import edu.univ.erp.domain.CourseDetail;
+import edu.univ.erp.domain.SectionDetail;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class SectionPanel extends JPanel {
+    private final AdminSectionApi sectionApi = new AdminSectionApi();
+
     private JComboBox<String> courseBox;
-    private JTextField secCodeField, dayField, timeField, roomField, semesterField, yearField, capacityField;
+    private JTextField sectionCodeField;
+    private JTextField dayField;
+    private JTextField timeField;
+    private JTextField roomField;
+    private JTextField semesterField;
+    private JTextField yearField;
+    private JTextField capacityField;
     private JLabel messageLabel;
     private DefaultTableModel tableModel;
     private JTable sectionTable;
-    private ArrayList<Integer> courseIds = new ArrayList<>();
+    private List<CourseDetail> courses = List.of();
 
     public SectionPanel() {
         setLayout(new GridBagLayout());
@@ -20,78 +33,106 @@ public class SectionPanel extends JPanel {
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
-        // Section Code
-        gbc.gridx=0; gbc.gridy=0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         add(new JLabel("Section Code:"), gbc);
-        gbc.gridx=1;
-        secCodeField = new JTextField(6);
-        add(secCodeField, gbc);
+        gbc.gridx = 1;
+        sectionCodeField = new JTextField(10);
+        add(sectionCodeField, gbc);
 
-        // Course selector
-        gbc.gridx=0; gbc.gridy=1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         add(new JLabel("Course:"), gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         courseBox = new JComboBox<>();
         add(courseBox, gbc);
 
-        // Day, Time, Room
-        gbc.gridx=0; gbc.gridy=2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         add(new JLabel("Day:"), gbc);
-        gbc.gridx=1;
-        dayField = new JTextField(10);
+        gbc.gridx = 1;
+        dayField = new JTextField(12);
         add(dayField, gbc);
 
-        gbc.gridx=0; gbc.gridy=3;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         add(new JLabel("Time:"), gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         timeField = new JTextField(12);
         add(timeField, gbc);
 
-        gbc.gridx=0; gbc.gridy=4;
+        gbc.gridx = 0;
+        gbc.gridy = 4;
         add(new JLabel("Room:"), gbc);
-        gbc.gridx=1;
-        roomField = new JTextField(10);
+        gbc.gridx = 1;
+        roomField = new JTextField(12);
         add(roomField, gbc);
 
-        // Semester, Year, Capacity
-        gbc.gridx=0; gbc.gridy=5;
+        gbc.gridx = 0;
+        gbc.gridy = 5;
         add(new JLabel("Semester:"), gbc);
-        gbc.gridx=1;
-        semesterField = new JTextField(10);
+        gbc.gridx = 1;
+        semesterField = new JTextField(12);
         add(semesterField, gbc);
 
-        gbc.gridx=0; gbc.gridy=6;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
         add(new JLabel("Year:"), gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         yearField = new JTextField(8);
         add(yearField, gbc);
 
-        gbc.gridx=0; gbc.gridy=7;
+        gbc.gridx = 0;
+        gbc.gridy = 7;
         add(new JLabel("Capacity:"), gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         capacityField = new JTextField(8);
         add(capacityField, gbc);
 
-        // Add button, message
-        gbc.gridx=0; gbc.gridy=8;
+        gbc.gridx = 0;
+        gbc.gridy = 8;
         JButton addButton = new JButton("Add Section");
         add(addButton, gbc);
-        gbc.gridx=1;
+        gbc.gridx = 1;
         messageLabel = new JLabel();
         add(messageLabel, gbc);
 
-        // Section table
-        gbc.gridx=0; gbc.gridy=9; gbc.gridwidth=2; gbc.fill=GridBagConstraints.BOTH;
-        String[] columns = {"ID", "Section Code", "Course", "Day", "Time", "Room", "Semester", "Year", "Capacity", "Edit", "Delete"};
+        gbc.gridx = 0;
+        gbc.gridy = 9;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        String[] columns = {
+                "ID", "Section Code", "Course", "Day", "Time", "Room",
+                "Semester", "Year", "Capacity", "Edit", "Delete"
+        };
         tableModel = new DefaultTableModel(columns, 0) {
-            public boolean isCellEditable(int row, int col) { return col == 9 || col == 10; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 9 || column == 10;
+            }
         };
         sectionTable = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(sectionTable);
-        add(scrollPane, gbc);
+        add(new JScrollPane(sectionTable), gbc);
 
-        // Live dropdown update (refreshes on panel show)
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        addButton.addActionListener(e -> addSection());
+        sectionTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = sectionTable.rowAtPoint(evt.getPoint());
+                int col = sectionTable.columnAtPoint(evt.getPoint());
+                if (row < 0) {
+                    return;
+                }
+                int sectionId = (int) tableModel.getValueAt(row, 0);
+                if (col == 9) {
+                    editSectionDialog(sectionId);
+                } else if (col == 10) {
+                    confirmDeleteSection(sectionId);
+                }
+            }
+        });
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 loadCourseList();
@@ -101,270 +142,231 @@ public class SectionPanel extends JPanel {
 
         loadCourseList();
         loadSectionTable();
+    }
 
-        addButton.addActionListener(e -> {
-            int selCourse = courseBox.getSelectedIndex();
-            String secCode = secCodeField.getText().trim();
-            String day = dayField.getText().trim();
-            String time = timeField.getText().trim();
-            String room = roomField.getText().trim();
-            String semester = semesterField.getText().trim();
-            String yearStr = yearField.getText().trim();
-            String capStr = capacityField.getText().trim();
+    private void addSection() {
+        AdminSectionApi.SectionCommand command = buildCommandFromFields();
+        if (command == null) {
+            return;
+        }
+        ApiResponse response = sectionApi.addSection(command);
+        messageLabel.setText(response.getMessage());
+        if (response.isSuccess()) {
+            clearFields();
+            loadSectionTable();
+        }
+    }
 
-            if(secCode.isEmpty() || selCourse < 0 || day.isEmpty() || time.isEmpty()
-                || room.isEmpty() || semester.isEmpty() || yearStr.isEmpty() || capStr.isEmpty()) {
-                messageLabel.setText("All fields required.");
-                return;
-            }
-            int year, capacity;
-            try {
-                year = Integer.parseInt(yearStr);
-                capacity = Integer.parseInt(capStr);
-                if (capacity <= 0) throw new NumberFormatException();
-            } catch(NumberFormatException ex) {
-                messageLabel.setText("Year/capacity must be numbers, capacity > 0.");
-                return;
-            }
-            String sql = "INSERT INTO sections (course_id, section_code, day, time, room, semester, year, capacity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-                 PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, courseIds.get(selCourse));
-                stmt.setString(2, secCode);
-                stmt.setString(3, day);
-                stmt.setString(4, time);
-                stmt.setString(5, room);
-                stmt.setString(6, semester);
-                stmt.setInt(7, year);
-                stmt.setInt(8, capacity);
-                stmt.executeUpdate();
-                messageLabel.setText("Section added successfully!");
-                clearFields();
-                loadSectionTable();
-            } catch(Exception ex) {
-                messageLabel.setText("Error: "+ex.getMessage());
-            }
-        });
+    private AdminSectionApi.SectionCommand buildCommandFromFields() {
+        Integer courseId = resolveSelectedCourseId();
+        if (courseId == null) {
+            messageLabel.setText("Select a course.");
+            return null;
+        }
+        String sectionCode = sectionCodeField.getText().trim();
+        String day = dayField.getText().trim();
+        String time = timeField.getText().trim();
+        String room = roomField.getText().trim();
+        String semester = semesterField.getText().trim();
+        String yearText = yearField.getText().trim();
+        String capacityText = capacityField.getText().trim();
 
-        sectionTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                int row = sectionTable.rowAtPoint(evt.getPoint());
-                int col = sectionTable.columnAtPoint(evt.getPoint());
-                int sectionId = (int)tableModel.getValueAt(row, 0);
-                if(col == 9) {
-                    editSectionDialog(sectionId);
-                } else if(col == 10) {
-                    int confirm = JOptionPane.showConfirmDialog(SectionPanel.this,
-                        "Delete section?", "Confirm", JOptionPane.YES_NO_OPTION);
-                    if(confirm == JOptionPane.YES_OPTION) {
-                        deleteSection(sectionId);
-                    }
-                }
-            }
-        });
+        if (sectionCode.isBlank() || day.isBlank() || time.isBlank()
+                || room.isBlank() || semester.isBlank() || yearText.isBlank() || capacityText.isBlank()) {
+            messageLabel.setText("All fields are required.");
+            return null;
+        }
+
+        AdminSectionApi.SectionCommand command = new AdminSectionApi.SectionCommand();
+        command.courseId = courseId;
+        command.sectionCode = sectionCode;
+        command.day = day;
+        command.time = time;
+        command.room = room;
+        command.semester = semester;
+        try {
+            command.year = Integer.parseInt(yearText);
+            command.capacity = Integer.parseInt(capacityText);
+        } catch (NumberFormatException ex) {
+            messageLabel.setText("Year and capacity must be numbers.");
+            return null;
+        }
+        return command;
     }
 
     private void loadCourseList() {
+        courses = sectionApi.listCourses();
         courseBox.removeAllItems();
-        courseIds.clear();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT course_id, code, title FROM courses")) {
-            while(rs.next()) {
-                courseBox.addItem(rs.getString("code")+" - "+rs.getString("title"));
-                courseIds.add(rs.getInt("course_id"));
-            }
-        } catch(Exception ex) {}
+        for (CourseDetail detail : courses) {
+            courseBox.addItem(detail.getCourseDisplay());
+        }
+        if (!courses.isEmpty()) {
+            courseBox.setSelectedIndex(0);
+        }
     }
 
     private void loadSectionTable() {
         tableModel.setRowCount(0);
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                "SELECT section_id, section_code, c.code, c.title, day, time, room, semester, year, capacity FROM sections s JOIN courses c ON s.course_id=c.course_id")) {
-            while(rs.next()) {
-                String course = rs.getString("code")+" - "+rs.getString("title");
-                tableModel.addRow(new Object[]{
-                    rs.getInt("section_id"),
-                    rs.getString("section_code"),
-                    course,
-                    rs.getString("day"),
-                    rs.getString("time"),
-                    rs.getString("room"),
-                    rs.getString("semester"),
-                    rs.getInt("year"),
-                    rs.getInt("capacity"),
-                    "Edit", "Delete"
-                });
-            }
-        } catch(Exception ex){ }
+        for (SectionDetail detail : sectionApi.listSections()) {
+            tableModel.addRow(new Object[]{
+                    detail.getSectionId(),
+                    detail.getSectionCode(),
+                    detail.getCourseDisplay(),
+                    detail.getDay(),
+                    detail.getTime(),
+                    detail.getRoom(),
+                    detail.getSemester(),
+                    detail.getYear(),
+                    detail.getCapacity(),
+                    "Edit",
+                    "Delete"
+            });
+        }
     }
 
     private void clearFields() {
-        secCodeField.setText(""); dayField.setText(""); timeField.setText("");
-        roomField.setText(""); semesterField.setText(""); yearField.setText("");
+        sectionCodeField.setText("");
+        dayField.setText("");
+        timeField.setText("");
+        roomField.setText("");
+        semesterField.setText("");
+        yearField.setText("");
         capacityField.setText("");
+        if (courseBox.getItemCount() > 0) {
+            courseBox.setSelectedIndex(0);
+        }
     }
 
-    private void deleteSection(int sectionId) {
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM sections WHERE section_id=?")) {
-            stmt.setInt(1, sectionId);
-            stmt.executeUpdate();
+    private Integer resolveSelectedCourseId() {
+        int index = courseBox.getSelectedIndex();
+        if (index < 0 || index >= courses.size()) {
+            return null;
+        }
+        return courses.get(index).getCourseId();
+    }
+
+    private void confirmDeleteSection(int sectionId) {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Delete section?",
+                "Confirm",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            ApiResponse response = sectionApi.deleteSection(sectionId);
+            if (!response.isSuccess()) {
+                JOptionPane.showMessageDialog(this, response.getMessage());
+            }
             loadSectionTable();
-        } catch(Exception ex){
-            JOptionPane.showMessageDialog(this, "Error deleting section: "+ex.getMessage());
         }
     }
 
     private void editSectionDialog(int sectionId) {
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Section", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(450, 450);
-        dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(7, 7, 7, 7); 
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JTextField codeField = new JTextField(15);
-        JComboBox<String> courseField = new JComboBox<>();
-        JTextField dayField = new JTextField(15);
-        JTextField timeField = new JTextField(15);
-        JTextField roomField = new JTextField(15);
-        JTextField semesterField = new JTextField(15);
-        JTextField yearField = new JTextField(15);
-        JTextField capacityField = new JTextField(15);
-
-        ArrayList<Integer> localCourseIds = new ArrayList<>();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT course_id, code, title FROM courses")) {
-            while(rs.next()) {
-                courseField.addItem(rs.getString("code")+" - "+rs.getString("title"));
-                localCourseIds.add(rs.getInt("course_id"));
-            }
-        } catch(Exception ex) { }
-
-        // Load current data
-        int courseIdx = 0;
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-            PreparedStatement stmt = conn.prepareStatement(
-                "SELECT course_id, section_code, day, time, room, semester, year, capacity FROM sections WHERE section_id=?")) {
-            stmt.setInt(1, sectionId);
-            ResultSet rs = stmt.executeQuery();
-            if(rs.next()) {
-                codeField.setText(rs.getString("section_code"));
-                int cid = rs.getInt("course_id");
-                courseIdx = localCourseIds.indexOf(cid);
-                dayField.setText(rs.getString("day"));
-                timeField.setText(rs.getString("time"));
-                roomField.setText(rs.getString("room"));
-                semesterField.setText(rs.getString("semester"));
-                yearField.setText(String.valueOf(rs.getInt("year")));
-                capacityField.setText(String.valueOf(rs.getInt("capacity")));
-            }
-        } catch(Exception ex){
-            JOptionPane.showMessageDialog(this,"Error loading section: "+ex.getMessage());
+        Optional<SectionDetail> detailOpt = sectionApi.loadSection(sectionId);
+        if (detailOpt.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Section not found.");
             return;
         }
-        if(courseIdx >= 0 && courseIdx < localCourseIds.size()) {
-            courseField.setSelectedIndex(courseIdx);
-        } else {
-            courseField.setSelectedIndex(0);
+        SectionDetail detail = detailOpt.get();
+
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Section", Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setSize(380, 430);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints base = new GridBagConstraints();
+        base.insets = new Insets(6, 6, 6, 6);
+        base.anchor = GridBagConstraints.WEST;
+        base.fill = GridBagConstraints.HORIZONTAL;
+
+        JTextField codeField = new JTextField(detail.getSectionCode(), 15);
+        JComboBox<String> courseField = new JComboBox<>();
+        courses.forEach(c -> courseField.addItem(c.getCourseDisplay()));
+        int selectedIndex = findCourseIndex(detail.getCourseId());
+        if (selectedIndex >= 0) {
+            courseField.setSelectedIndex(selectedIndex);
         }
+        JTextField dayField = new JTextField(detail.getDay(), 15);
+        JTextField timeField = new JTextField(detail.getTime(), 15);
+        JTextField roomField = new JTextField(detail.getRoom(), 15);
+        JTextField semesterField = new JTextField(detail.getSemester(), 15);
+        JTextField yearField = new JTextField(String.valueOf(detail.getYear()), 10);
+        JTextField capacityField = new JTextField(String.valueOf(detail.getCapacity()), 10);
 
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=0; dialog.add(new JLabel("Section Code:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(codeField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=1; dialog.add(new JLabel("Course:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(courseField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=2; dialog.add(new JLabel("Day:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(dayField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=3; dialog.add(new JLabel("Time:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(timeField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=4; dialog.add(new JLabel("Room:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(roomField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=5; dialog.add(new JLabel("Semester:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(semesterField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=6; dialog.add(new JLabel("Year:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(yearField, gbc);
-        
-        gbc.weightx = 0.0;
-        gbc.gridx=0; gbc.gridy=7; dialog.add(new JLabel("Capacity:"), gbc);
-        gbc.weightx = 1.0;
-        gbc.gridx=1; dialog.add(capacityField, gbc);
+        int row = 0;
+        addRow(dialog, base, row++, "Section Code:", codeField);
+        addRow(dialog, base, row++, "Course:", courseField);
+        addRow(dialog, base, row++, "Day:", dayField);
+        addRow(dialog, base, row++, "Time:", timeField);
+        addRow(dialog, base, row++, "Room:", roomField);
+        addRow(dialog, base, row++, "Semester:", semesterField);
+        addRow(dialog, base, row++, "Year:", yearField);
+        addRow(dialog, base, row++, "Capacity:", capacityField);
 
-        JButton saveBtn = new JButton("Save Changes");
+        JButton saveBtn = new JButton("Save");
         JLabel infoLabel = new JLabel();
-
-        gbc.weightx = 1.0;
-        gbc.gridx=0; gbc.gridy=8; gbc.gridwidth=2; dialog.add(saveBtn, gbc);
-        gbc.gridy=9; gbc.gridwidth=2; dialog.add(infoLabel, gbc);
+        GridBagConstraints btnConstraints = (GridBagConstraints) base.clone();
+        btnConstraints.gridx = 0;
+        btnConstraints.gridy = row;
+        btnConstraints.gridwidth = 2;
+        dialog.add(saveBtn, btnConstraints);
+        GridBagConstraints infoConstraints = (GridBagConstraints) base.clone();
+        infoConstraints.gridx = 0;
+        infoConstraints.gridy = row + 1;
+        infoConstraints.gridwidth = 2;
+        dialog.add(infoLabel, infoConstraints);
 
         saveBtn.addActionListener(e -> {
-            int courseIdxSel = courseField.getSelectedIndex();
-            String secCode = codeField.getText().trim();
-            String day = dayField.getText().trim();
-            String time = timeField.getText().trim();
-            String room = roomField.getText().trim();
-            String semester = semesterField.getText().trim();
-            String yearStr = yearField.getText().trim();
-            String capStr = capacityField.getText().trim();
-            if(secCode.isEmpty() || courseIdxSel<0 || day.isEmpty() || time.isEmpty()
-                || room.isEmpty() || semester.isEmpty() || yearStr.isEmpty() || capStr.isEmpty()) {
-                infoLabel.setText("All fields required.");
-                return;
-            }
-            int year, capacity;
+            AdminSectionApi.SectionCommand command = new AdminSectionApi.SectionCommand();
+            command.courseId = resolveSelectedCourseId(courseField.getSelectedIndex());
+            command.sectionCode = codeField.getText().trim();
+            command.day = dayField.getText().trim();
+            command.time = timeField.getText().trim();
+            command.room = roomField.getText().trim();
+            command.semester = semesterField.getText().trim();
             try {
-                year = Integer.parseInt(yearStr);
-                capacity = Integer.parseInt(capStr);
-                if (capacity <= 0) throw new NumberFormatException();
-            } catch(NumberFormatException ex) {
-                infoLabel.setText("Year/capacity must be numbers, cap>0.");
+                command.year = Integer.parseInt(yearField.getText().trim());
+                command.capacity = Integer.parseInt(capacityField.getText().trim());
+            } catch (NumberFormatException ex) {
+                infoLabel.setText("Year/capacity must be numeric.");
                 return;
             }
-            try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                    "UPDATE sections SET course_id=?, section_code=?, day=?, time=?, room=?, semester=?, year=?, capacity=? WHERE section_id=?")) {
-                stmt.setInt(1, localCourseIds.get(courseIdxSel));
-                stmt.setString(2, secCode);
-                stmt.setString(3, day);
-                stmt.setString(4, time);
-                stmt.setString(5, room);
-                stmt.setString(6, semester);
-                stmt.setInt(7, year);
-                stmt.setInt(8, capacity);
-                stmt.setInt(9, sectionId);
-                stmt.executeUpdate();
-                infoLabel.setText("Section updated!");
+            ApiResponse response = sectionApi.updateSection(sectionId, command);
+            infoLabel.setText(response.getMessage());
+            if (response.isSuccess()) {
                 loadSectionTable();
-            } catch(Exception ex) {
-                infoLabel.setText("Error: "+ex.getMessage());
             }
         });
+
         dialog.setVisible(true);
     }
 
+    private Integer resolveSelectedCourseId(int index) {
+        if (index < 0 || index >= courses.size()) {
+            return null;
+        }
+        return courses.get(index).getCourseId();
+    }
+
+    private int findCourseIndex(int courseId) {
+        for (int i = 0; i < courses.size(); i++) {
+            if (courses.get(i).getCourseId() == courseId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void addRow(JDialog dialog, GridBagConstraints base, int row, String labelText, JComponent field) {
+        GridBagConstraints labelConstraints = (GridBagConstraints) base.clone();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = row;
+        labelConstraints.weightx = 0;
+        dialog.add(new JLabel(labelText), labelConstraints);
+
+        GridBagConstraints fieldConstraints = (GridBagConstraints) base.clone();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = row;
+        fieldConstraints.weightx = 1.0;
+        dialog.add(field, fieldConstraints);
+    }
 }
+
