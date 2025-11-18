@@ -60,7 +60,7 @@ After the login window appears, sign in with one of the default accounts below.
 
 ## Project Status
 
-See `PROJECT_REPORT.md` for documentation and `TEST_PLAN.md` for the acceptance test suite.
+
 
 ## Documentation
 
@@ -68,5 +68,5 @@ See `PROJECT_REPORT.md` for documentation and `TEST_PLAN.md` for the acceptance 
 - `TEST_PLAN.md` - Comprehensive test plan
 - `TEST_SUMMARY.md` - Test results template
 - `PROJECT_REPORT.md` - Complete project report
-- `database/` - SQL schema and seed files
+- `database/README_DATABASE_SETUP.md` - Database setup guide
 

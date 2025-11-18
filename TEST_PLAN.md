@@ -11,10 +11,10 @@
 
 | Username | Password | Role | Purpose |
 |----------|----------|------|---------|
-| admin | admin | Admin | Full system access testing |
-| inst1 | instructor | Instructor | Instructor features testing |
-| stu1 | student | Student | Student features testing |
-| stu2 | student | Student | Additional student testing |
+| admin | admin123 | Admin | Full system access testing |
+| inst1 | inst1_1 | Instructor | Instructor features testing |
+| stu1 | stu1_1 | Student | Student features testing |
+| stu2 | stu2_2 | Student | Additional student testing |
 
 ## Test Data
 

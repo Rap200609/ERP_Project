@@ -1,22 +1,26 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.instructor.InstructorApi;
+import edu.univ.erp.domain.GradeExportRow;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.*;
-import java.sql.*;
+import java.io.File;
+import java.io.PrintWriter;
 
 public class GradesExportPanel extends JPanel {
-    private DefaultTableModel model;
-    private JTable table;
-    private JButton exportBtn;
-    private int instructorId; // Store instructor ID for refresh
+    private final InstructorApi instructorApi = new InstructorApi();
+    private final DefaultTableModel model;
+    private final JTable table;
+    private final JButton exportBtn;
+    private final int instructorId;
 
     public GradesExportPanel(int instructorId) {
-        this.instructorId = instructorId; // Save for later refresh
-        
+        this.instructorId = instructorId;
+
         setLayout(new BorderLayout());
-        String[] cols = { "Section", "Student Roll No.", "Component", "Score", "Final Grade" };
+        String[] cols = {"Section", "Student Roll No.", "Component", "Score", "Final Grade"};
         model = new DefaultTableModel(cols, 0);
         table = new JTable(model);
         exportBtn = new JButton("Export Grades as CSV");
@@ -24,44 +28,28 @@ public class GradesExportPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(exportBtn, BorderLayout.SOUTH);
 
-        loadData(instructorId);
+        loadData();
 
         exportBtn.addActionListener(e -> exportCSV());
-        
-        // Add component listener for real-time refresh
+
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent evt) {
-                // Refresh data when panel becomes visible
-                loadData(GradesExportPanel.this.instructorId);
+                loadData();
             }
         });
     }
 
-    private void loadData(int instructorId) {
+    private void loadData() {
         model.setRowCount(0);
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                    "SELECT s.section_code, st.roll_no, g.component, g.score, g.final_grade " +
-                    "FROM grades g JOIN enrollments e ON g.enrollment_id=e.enrollment_id " +
-                    "JOIN students st ON e.student_id=st.user_id " +
-                    "JOIN sections s ON e.section_id=s.section_id " +
-                    "WHERE s.instructor_id=? " +
-                    "ORDER BY s.section_code, st.roll_no, g.component")) {
-            stmt.setInt(1, instructorId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                model.addRow(new Object[] {
-                        rs.getString("section_code"),
-                        rs.getString("roll_no"),
-                        rs.getString("component"),
-                        rs.getDouble("score"),
-                        rs.getObject("final_grade")
-                });
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading grades for export: " + ex.getMessage());
-            ex.printStackTrace();
+        for (GradeExportRow row : instructorApi.loadGradesForExport(instructorId)) {
+            model.addRow(new Object[]{
+                    row.getSectionCode(),
+                    row.getRollNo(),
+                    row.getComponent(),
+                    row.getScore(),
+                    row.getFinalGrade()
+            });
         }
     }
 

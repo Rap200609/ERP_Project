@@ -1,22 +1,22 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.auth.PasswordApi;
+import edu.univ.erp.api.common.ApiResponse;
+
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class ChangePasswordDialog extends JDialog {
-    private JPasswordField currentPasswordField;
-    private JPasswordField newPasswordField;
-    private JPasswordField confirmPasswordField;
-    private JButton changeBtn;
-    private JButton cancelBtn;
-    private int userId;
+    private final PasswordApi passwordApi = new PasswordApi();
+    private final JPasswordField currentPasswordField;
+    private final JPasswordField newPasswordField;
+    private final JPasswordField confirmPasswordField;
+    private final int userId;
 
     public ChangePasswordDialog(JFrame parent, int userId) {
         super(parent, "Change Password", true);
         this.userId = userId;
-        
+
         setSize(400, 250);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
@@ -44,8 +44,8 @@ public class ChangePasswordDialog extends JDialog {
 
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        changeBtn = new JButton("Change Password");
-        cancelBtn = new JButton("Cancel");
+        JButton changeBtn = new JButton("Change Password");
+        JButton cancelBtn = new JButton("Cancel");
 
         changeBtn.addActionListener(e -> changePassword());
         cancelBtn.addActionListener(e -> dispose());
@@ -62,80 +62,41 @@ public class ChangePasswordDialog extends JDialog {
 
         // Validation
         if (currentPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "All fields are required!", 
-                "Validation Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "All fields are required!",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (newPassword.length() < 6) {
-            JOptionPane.showMessageDialog(this, 
-                "New password must be at least 6 characters!", 
-                "Validation Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "New password must be at least 6 characters!",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            JOptionPane.showMessageDialog(this, 
-                "New passwords do not match!", 
-                "Validation Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "New passwords do not match!",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Database update
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getAuthDataSource().getConnection()) {
-            
-            // Verify current password
-            PreparedStatement checkStmt = conn.prepareStatement(
-                "SELECT password_hash FROM users_auth WHERE user_id = ?");
-            checkStmt.setInt(1, userId);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (!rs.next()) {
-                JOptionPane.showMessageDialog(this, 
-                    "User not found!", 
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String storedHash = rs.getString("password_hash");
-            
-            // Verify current password with BCrypt
-            if (!BCrypt.checkpw(currentPassword, storedHash)) {
-                JOptionPane.showMessageDialog(this, 
-                    "Current password is incorrect!", 
-                    "Authentication Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Hash new password
-            String newHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-
-            // Update password
-            PreparedStatement updateStmt = conn.prepareStatement(
-                "UPDATE users_auth SET password_hash = ? WHERE user_id = ?");
-            updateStmt.setString(1, newHash);
-            updateStmt.setInt(2, userId);
-            updateStmt.executeUpdate();
-
-            JOptionPane.showMessageDialog(this, 
-                "Password changed successfully!", 
-                "Success", 
-                JOptionPane.INFORMATION_MESSAGE);
-            
+        ApiResponse response = passwordApi.changePassword(userId, currentPassword, newPassword);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this,
+                    response.getMessage(),
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
             dispose();
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, 
-                "Error changing password: " + ex.getMessage(), 
-                "Database Error", 
-                JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    response.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

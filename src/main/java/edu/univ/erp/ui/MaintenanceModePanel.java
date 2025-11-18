@@ -1,12 +1,16 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.admin.AdminMaintenanceApi;
+import edu.univ.erp.api.common.ApiResponse;
+
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
 
 public class MaintenanceModePanel extends JPanel {
-    private JLabel statusLabel;
-    private JButton toggleButton;
+    private final AdminMaintenanceApi maintenanceApi = new AdminMaintenanceApi();
+
+    private final JLabel statusLabel;
+    private final JButton toggleButton;
 
     public MaintenanceModePanel() {
         setLayout(new GridBagLayout());
@@ -19,7 +23,8 @@ public class MaintenanceModePanel extends JPanel {
 
         toggleButton = new JButton();
 
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         add(statusLabel, gbc);
         gbc.gridy = 1;
         add(toggleButton, gbc);
@@ -32,40 +37,21 @@ public class MaintenanceModePanel extends JPanel {
         });
 
         toggleButton.addActionListener(e -> {
-            boolean mode = getCurrentMode();
-            setMaintenanceMode(!mode);
+            boolean desiredState = !maintenanceApi.isMaintenanceModeOn();
+            ApiResponse response = maintenanceApi.setMaintenanceMode(desiredState);
+            if (!response.isSuccess()) {
+                JOptionPane.showMessageDialog(MaintenanceModePanel.this, response.getMessage(),
+                        "Maintenance Mode", JOptionPane.ERROR_MESSAGE);
+            }
             refreshStatus();
         });
 
         refreshStatus();
     }
 
-    private boolean getCurrentMode() {
-        boolean mode = false;
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT setting_value FROM settings WHERE setting_key='maintenance_mode'")) {
-            if (rs.next()) {
-                mode = "ON".equalsIgnoreCase(rs.getString("setting_value"));
-            }
-        } catch (Exception ex) { }
-        return mode;
-    }
-
-    private void setMaintenanceMode(boolean modeOn) {
-        String valueStr = modeOn ? "ON" : "OFF";
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "UPDATE settings SET setting_value=? WHERE setting_key='maintenance_mode'")) {
-            stmt.setString(1, valueStr);
-            stmt.executeUpdate();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Failed to update mode: " + ex.getMessage());
-        }
-    }
-
     private void refreshStatus() {
-        if (getCurrentMode()) {
+        boolean modeOn = maintenanceApi.isMaintenanceModeOn();
+        if (modeOn) {
             statusLabel.setText("MAINTENANCE MODE ACTIVE");
             toggleButton.setText("Disable Maintenance Mode");
         } else {

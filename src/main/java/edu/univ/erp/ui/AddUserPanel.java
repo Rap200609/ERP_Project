@@ -161,7 +161,8 @@ public class AddUserPanel extends JPanel {
                         Connection connMain = DatabaseConfig.getMainDataSource().getConnection();
                         PreparedStatement instrStmt = connMain.prepareStatement(
                             "INSERT INTO instructors (user_id, employee_id, department, email) VALUES (?, ?, ?, ?)")
-                    ) {
+                    ) 
+                    {
                         instrStmt.setInt(1, userId);
                         instrStmt.setString(2, empId);
                         instrStmt.setString(3, dept);
@@ -175,7 +176,8 @@ public class AddUserPanel extends JPanel {
                 rollNoField.setText(""); programField.setText(""); yearField.setText(""); studentEmailField.setText("");
                 empIdField.setText(""); deptField.setText(""); instructorEmailField.setText("");
                 loadUserTable();
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 messageLabel.setText("Error: " + ex.getMessage());
                 ex.printStackTrace();
             }
@@ -191,7 +193,8 @@ public class AddUserPanel extends JPanel {
                 String role = (String) tableModel.getValueAt(row, 2);
                 if (col == 4) { // Edit
                     editUserDialog(userId, role);
-                } else if (col == 5) { // Delete
+                } 
+                else if (col == 5) { // Delete
                     int confirm = JOptionPane.showConfirmDialog(AddUserPanel.this,
                         "Delete user " + username + "?");
                     if (confirm == JOptionPane.YES_OPTION) {
@@ -214,7 +217,8 @@ public class AddUserPanel extends JPanel {
         if ("ADMIN".equals(role)) {
             // No extra fields needed for admin
             extraFieldsPanel.add(new JLabel("No additional fields required for Admin."), gbc);
-        } else if ("STUDENT".equals(role)) {
+        } 
+        else if ("STUDENT".equals(role)) {
             gbc.gridx = 0; gbc.gridy = 0; extraFieldsPanel.add(new JLabel("Roll No:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(rollNoField, gbc);
             gbc.gridx = 0; gbc.gridy = 1; extraFieldsPanel.add(new JLabel("Program:"), gbc);
@@ -223,7 +227,8 @@ public class AddUserPanel extends JPanel {
             gbc.gridx = 1; extraFieldsPanel.add(yearField, gbc);
             gbc.gridx = 0; gbc.gridy = 3; extraFieldsPanel.add(new JLabel("Email:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(studentEmailField, gbc);
-        } else if ("INSTRUCTOR".equals(role)) {
+        } 
+        else if ("INSTRUCTOR".equals(role)) {
             gbc.gridx = 0; gbc.gridy = 0; extraFieldsPanel.add(new JLabel("Employee ID:"), gbc);
             gbc.gridx = 1; extraFieldsPanel.add(empIdField, gbc);
             gbc.gridx = 0; gbc.gridy = 1; extraFieldsPanel.add(new JLabel("Department:"), gbc);
@@ -251,7 +256,8 @@ public class AddUserPanel extends JPanel {
                     "Delete"
                 });
             }
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -291,7 +297,8 @@ public class AddUserPanel extends JPanel {
                 }
             }
             loadUserTable();
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error deleting user: " + e.getMessage());
         }
     }
@@ -328,7 +335,8 @@ public class AddUserPanel extends JPanel {
             if (rs.next()) {
                 usernameField.setText(rs.getString("username"));
             }
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error loading user: " + ex.getMessage());
             return;
         }
@@ -345,11 +353,13 @@ public class AddUserPanel extends JPanel {
                     field3.setText(rs.getString("year"));
                     field4.setText(rs.getString("email"));
                 }
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error loading student info: " + ex.getMessage());
                 return;
             }
-        } else if ("INSTRUCTOR".equals(role)) {
+        } 
+        else if ("INSTRUCTOR".equals(role)) {
             try (Connection conn = DatabaseConfig.getMainDataSource().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(
                     "SELECT employee_id, department, email FROM instructors WHERE user_id=?")) {
@@ -360,7 +370,8 @@ public class AddUserPanel extends JPanel {
                     field2.setText(rs.getString("department"));
                     field3.setText(rs.getString("email"));
                 }
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error loading instructor info: " + ex.getMessage());
                 return;
             }
@@ -418,7 +429,8 @@ public class AddUserPanel extends JPanel {
                     stmt.setString(1, username);
                     stmt.setInt(2, userId);
                     stmt.executeUpdate();
-                } else {
+                } 
+                else {
                     String hash = BCrypt.hashpw(newPass, BCrypt.gensalt(10));
                     PreparedStatement stmt = conn.prepareStatement(
                         "UPDATE users_auth SET username=?, password_hash=? WHERE user_id=?");
@@ -427,7 +439,8 @@ public class AddUserPanel extends JPanel {
                     stmt.setInt(3, userId);
                     stmt.executeUpdate();
                 }
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) {
                 infoLabel.setText("Error updating user: " + ex.getMessage());
                 return;
             }
@@ -446,7 +459,8 @@ public class AddUserPanel extends JPanel {
                     stmt.setString(4, email);
                     stmt.setInt(5, userId);
                     stmt.executeUpdate();
-                } catch (Exception ex) {
+                } 
+                catch (Exception ex) {
                     infoLabel.setText("Error updating student: " + ex.getMessage());
                     return;
                 }
@@ -462,7 +476,8 @@ public class AddUserPanel extends JPanel {
                     stmt.setString(3, email);
                     stmt.setInt(4, userId);
                     stmt.executeUpdate();
-                } catch (Exception ex) {
+                } 
+                catch (Exception ex) {
                     infoLabel.setText("Error updating instructor: " + ex.getMessage());
                     return;
                 }
@@ -496,7 +511,8 @@ public class AddUserPanel extends JPanel {
             if (rs.next()) {
                 usernameField.setText(rs.getString("username"));
             }
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error loading admin: " + ex.getMessage());
             return;
         }
@@ -555,6 +571,7 @@ public class AddUserPanel extends JPanel {
     private Integer parseInt(JTextField field) {
         try {
             return Integer.parseInt(field.getText().trim());
-        } catch (Exception ex) { return null; }
+        } 
+        catch (Exception ex) { return null; }
     }
 }

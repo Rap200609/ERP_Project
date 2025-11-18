@@ -45,6 +45,7 @@ mvn clean compile
 # Run the application
 mvn exec:java -Dexec.mainClass="edu.univ.erp.App"
 ```
+```
 
 Alternatively, run `App.java` directly from your IDE.
 
