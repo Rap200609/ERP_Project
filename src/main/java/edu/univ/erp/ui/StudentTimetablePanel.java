@@ -20,6 +20,7 @@ public class StudentTimetablePanel extends JPanel {
     public StudentTimetablePanel(int studentId, StudentApi studentApi) {
         this.studentId = studentId;
         this.studentApi = studentApi;
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
         String[] cols = {"Section", "Course", "Day", "Time", "Room"};
         model = new DefaultTableModel(cols, 0) {
@@ -29,7 +30,10 @@ public class StudentTimetablePanel extends JPanel {
             }
         };
         JTable table = new JTable(model);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UITheme.styleTable(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override

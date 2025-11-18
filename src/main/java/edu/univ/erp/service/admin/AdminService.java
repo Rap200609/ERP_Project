@@ -37,6 +37,7 @@ public class AdminService {
     public static class UpdateUserRequest {
         public int userId;
         public String username;
+        // Optional is a special Java class that can hold either a value of type T or be empty/null.
         public Optional<String> newPassword = Optional.empty();
         public Role role;
         public StudentProfile studentProfile;
@@ -48,7 +49,7 @@ public class AdminService {
         public Optional<StudentProfile> studentProfile = Optional.empty();
         public Optional<InstructorProfile> instructorProfile = Optional.empty();
     }
-
+    // Repositories are the class that provides methods to interact with the tables in the database. 
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
     private final InstructorRepository instructorRepository;
@@ -57,9 +58,7 @@ public class AdminService {
         this(new UserRepository(), new StudentRepository(), new InstructorRepository());
     }
 
-    public AdminService(UserRepository userRepository,
-                        StudentRepository studentRepository,
-                        InstructorRepository instructorRepository) {
+    public AdminService(UserRepository userRepository,StudentRepository studentRepository, InstructorRepository instructorRepository) {
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
         this.instructorRepository = instructorRepository;
@@ -71,27 +70,17 @@ public class AdminService {
 
     public int addUser(AddUserRequest request) throws Exception {
         String passwordHash = BCrypt.hashpw(request.password, BCrypt.gensalt(10));
+        // Creates a new user in the database.
         int userId = userRepository.createUser(request.username, request.role.name(), passwordHash);
 
-        switch (request.role) {
+        switch (request.role) {       
             case STUDENT -> {
                 validateStudentRequest(request);
-                studentRepository.createStudentProfile(
-                        userId,
-                        request.rollNo,
-                        request.program,
-                        request.year,
-                        request.studentEmail
-                );
+                studentRepository.createStudentProfile(userId, request.rollNo, request.program, request.year, request.studentEmail);
             }
             case INSTRUCTOR -> {
                 validateInstructorRequest(request);
-                instructorRepository.createInstructorProfile(
-                        userId,
-                        request.employeeId,
-                        request.department,
-                        request.instructorEmail
-                );
+                instructorRepository.createInstructorProfile(userId, request.employeeId, request.department, request.instructorEmail);
             }
             case ADMIN -> {
                 // no-op
@@ -101,16 +90,13 @@ public class AdminService {
     }
 
     private void validateStudentRequest(AddUserRequest request) {
-        if (request.rollNo == null || request.rollNo.isBlank()
-                || request.program == null || request.program.isBlank()
-                || request.year == null) {
+        if (request.rollNo == null || request.rollNo.isBlank() || request.program == null || request.program.isBlank() || request.year == null) {
             throw new IllegalArgumentException("All student fields are required.");
         }
     }
 
     private void validateInstructorRequest(AddUserRequest request) {
-        if (request.employeeId == null || request.employeeId.isBlank()
-                || request.department == null || request.department.isBlank()) {
+        if (request.employeeId == null || request.employeeId.isBlank() || request.department == null || request.department.isBlank()) {
             throw new IllegalArgumentException("All instructor fields are required.");
         }
     }
@@ -126,8 +112,7 @@ public class AdminService {
 
     public UserDetails loadUserDetails(int userId) throws Exception {
         UserDetails details = new UserDetails();
-        UserAccount account = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        UserAccount account = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
         details.account = account;
         Role role = Role.fromString(account.getRole());
         if (role == Role.STUDENT) {

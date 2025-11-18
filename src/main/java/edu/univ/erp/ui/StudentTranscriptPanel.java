@@ -33,10 +33,15 @@ public class StudentTranscriptPanel extends JPanel {
     public StudentTranscriptPanel(int studentId, StudentApi studentApi) {
         this.studentId = studentId;
         this.studentApi = studentApi;
-        setLayout(new FlowLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new FlowLayout(FlowLayout.CENTER, 20, 50));
 
         JButton csvBtn = new JButton("Download Transcript (CSV)");
+        UITheme.stylePrimaryButton(csvBtn);
+        csvBtn.setPreferredSize(new Dimension(220, 45));
         JButton pdfBtn = new JButton("Download Transcript (PDF)");
+        UITheme.stylePrimaryButton(pdfBtn);
+        pdfBtn.setPreferredSize(new Dimension(220, 45));
 
         add(csvBtn);
         add(pdfBtn);

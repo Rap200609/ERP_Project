@@ -22,8 +22,8 @@ public class StudentDropPanel extends JPanel {
     public StudentDropPanel(int studentId, StudentApi studentApi) {
         this.studentId = studentId;
         this.studentApi = studentApi;
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
 
         enrolledModel = new DefaultTableModel(new String[]{"Section Code", "Course", "Instructor", "Drop"}, 0) {
             @Override
@@ -38,11 +38,16 @@ public class StudentDropPanel extends JPanel {
         };
 
         JTable enrolledTable = new JTable(enrolledModel);
-        enrolledTable.setRowHeight(25);
-        add(new JScrollPane(enrolledTable), BorderLayout.CENTER);
+        UITheme.styleTable(enrolledTable);
+        JScrollPane scrollPane = new JScrollPane(enrolledTable);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UITheme.BG_MAIN);
+        bottomPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
         JButton dropBtn = new JButton("Drop Selected Sections");
+        UITheme.stylePrimaryButton(dropBtn);
         dropBtn.addActionListener(e -> dropSelectedSections());
         bottomPanel.add(dropBtn);
         add(bottomPanel, BorderLayout.SOUTH);

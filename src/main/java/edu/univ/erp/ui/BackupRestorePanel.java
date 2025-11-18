@@ -14,34 +14,59 @@ public class BackupRestorePanel extends JPanel {
     private final JLabel statusLabel = new JLabel();
 
     public BackupRestorePanel() {
-        setLayout(new GridBagLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+        
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        UITheme.styleCardPanel(buttonPanel);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(24, 24, 24, 24);
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.anchor = GridBagConstraints.CENTER;
 
         JButton backupBothBtn = new JButton("Backup Both Databases");
+        UITheme.stylePrimaryButton(backupBothBtn);
+        backupBothBtn.setPreferredSize(new Dimension(250, 40));
         JButton backupMainBtn = new JButton("Backup Main Database");
+        UITheme.stylePrimaryButton(backupMainBtn);
+        backupMainBtn.setPreferredSize(new Dimension(250, 40));
         JButton backupAuthBtn = new JButton("Backup Auth Database");
+        UITheme.stylePrimaryButton(backupAuthBtn);
+        backupAuthBtn.setPreferredSize(new Dimension(250, 40));
         JButton restoreBothBtn = new JButton("Restore Both Databases");
+        UITheme.styleSecondaryButton(restoreBothBtn);
+        restoreBothBtn.setPreferredSize(new Dimension(250, 40));
         JButton restoreMainBtn = new JButton("Restore Main Database");
+        UITheme.styleSecondaryButton(restoreMainBtn);
+        restoreMainBtn.setPreferredSize(new Dimension(250, 40));
         JButton restoreAuthBtn = new JButton("Restore Auth Database");
+        UITheme.styleSecondaryButton(restoreAuthBtn);
+        restoreAuthBtn.setPreferredSize(new Dimension(250, 40));
 
         statusLabel.setPreferredSize(new Dimension(500, 60));
+        statusLabel.setFont(UITheme.FONT_BODY);
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(backupBothBtn, gbc);
+        buttonPanel.add(backupBothBtn, gbc);
         gbc.gridy = 1;
-        add(backupMainBtn, gbc);
+        buttonPanel.add(backupMainBtn, gbc);
         gbc.gridy = 2;
-        add(backupAuthBtn, gbc);
+        buttonPanel.add(backupAuthBtn, gbc);
         gbc.gridy = 3;
-        add(restoreBothBtn, gbc);
+        buttonPanel.add(restoreBothBtn, gbc);
         gbc.gridy = 4;
-        add(restoreMainBtn, gbc);
+        buttonPanel.add(restoreMainBtn, gbc);
         gbc.gridy = 5;
-        add(restoreAuthBtn, gbc);
-        gbc.gridy = 6;
-        add(statusLabel, gbc);
+        buttonPanel.add(restoreAuthBtn, gbc);
+        
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.setBackground(UITheme.BG_MAIN);
+        statusPanel.setBorder(new javax.swing.border.EmptyBorder(20, 20, 20, 20));
+        statusPanel.add(statusLabel, BorderLayout.CENTER);
+        
+        add(buttonPanel, BorderLayout.CENTER);
+        add(statusPanel, BorderLayout.SOUTH);
 
         backupMainBtn.addActionListener(e -> chooseDestination("erp_main_backup.sql", file ->
                 runTask("Backing up main...", () -> backupApi.backup(DatabaseTarget.MAIN, file))));

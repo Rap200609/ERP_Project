@@ -18,11 +18,28 @@ public class StudentCourseCatalogPanel extends JPanel {
 
     public StudentCourseCatalogPanel(CatalogApi catalogApi) {
         this.catalogApi = catalogApi;
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
+        
+        // Header panel
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        headerPanel.setBackground(UITheme.BG_MAIN);
+        headerPanel.setBorder(new javax.swing.border.EmptyBorder(0, 0, 15, 0));
+        JLabel titleLabel = new JLabel("Course Catalog");
+        UITheme.styleHeadingLabel(titleLabel);
+        titleLabel.setFont(UITheme.FONT_HEADING);
+        headerPanel.add(titleLabel);
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Table panel
         String[] cols = {"Course Code", "Title", "Credits", "Instructor", "Capacity"};
         model = new DefaultTableModel(cols, 0);
         JTable table = new JTable(model);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UITheme.styleTable(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
+        
         loadCatalog();
     }
 

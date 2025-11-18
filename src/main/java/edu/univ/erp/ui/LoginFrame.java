@@ -7,30 +7,106 @@ import edu.univ.erp.data.DatabaseConfig;
 
 public class LoginFrame extends JFrame {
     public LoginFrame() {
-        setTitle("University ERP Login");
-        setSize(400, 250);
+        setTitle("University ERP System - Login");
+        setSize(480, 420);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(true); // Allow maximizing
+        getContentPane().setBackground(UITheme.BG_MAIN);
 
+        // Main container with card effect
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(UITheme.BG_MAIN);
+        mainPanel.setBorder(new javax.swing.border.EmptyBorder(40, 40, 40, 40));
+        
+        // Login card panel
+        JPanel cardPanel = new JPanel();
+        cardPanel.setBackground(UITheme.BG_PANEL);
+        cardPanel.setBorder(new javax.swing.border.CompoundBorder(
+            new javax.swing.border.LineBorder(UITheme.BORDER_LIGHT, 1, true),
+            new javax.swing.border.EmptyBorder(40, 40, 40, 40)
+        ));
+        cardPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Title
+        JLabel titleLabel = new JLabel("University ERP System");
+        titleLabel.setFont(UITheme.FONT_HEADING);
+        titleLabel.setForeground(UITheme.PRIMARY_DARK);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        cardPanel.add(titleLabel, gbc);
+        
+        JLabel subtitleLabel = new JLabel("Sign in to continue");
+        subtitleLabel.setFont(UITheme.FONT_SMALL);
+        subtitleLabel.setForeground(UITheme.TEXT_SECONDARY);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(5, 10, 25, 10);
+        cardPanel.add(subtitleLabel, gbc);
+        
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridwidth = 1;
+
+        // Username field
         JLabel userLabel = new JLabel("Username:");
+        UITheme.styleLabel(userLabel, true);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        cardPanel.add(userLabel, gbc);
+
         JTextField userField = new JTextField(20);
+        UITheme.styleTextField(userField);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.ipadx = 20;
+        cardPanel.add(userField, gbc);
 
+        // Password field
         JLabel passLabel = new JLabel("Password:");
+        UITheme.styleLabel(passLabel, true);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.ipadx = 0;
+        cardPanel.add(passLabel, gbc);
+
         JPasswordField passField = new JPasswordField(20);
+        UITheme.stylePasswordField(passField);
+        gbc.gridx = 1;
+        gbc.ipadx = 20;
+        cardPanel.add(passField, gbc);
 
-        JButton loginButton = new JButton("Login");
+        // Message label
         JLabel messageLabel = new JLabel("", SwingConstants.CENTER);
+        messageLabel.setFont(UITheme.FONT_SMALL);
+        messageLabel.setForeground(UITheme.ACCENT_ERROR);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.ipadx = 0;
+        gbc.insets = new Insets(5, 10, 5, 10);
+        cardPanel.add(messageLabel, gbc);
 
-        JPanel panel = new JPanel(new GridLayout(6, 1, 8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
-        panel.add(userLabel);
-        panel.add(userField);
-        panel.add(passLabel);
-        panel.add(passField);
-        panel.add(loginButton);
-        panel.add(messageLabel);
+        // Login button
+        JButton loginButton = new JButton("Sign In");
+        UITheme.stylePrimaryButton(loginButton);
+        loginButton.setPreferredSize(new Dimension(200, 42));
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.fill = GridBagConstraints.NONE;
+        cardPanel.add(loginButton, gbc);
 
-        add(panel);
+        mainPanel.add(cardPanel, BorderLayout.CENTER);
+        add(mainPanel);
 
         loginButton.addActionListener(e -> {
             String username = userField.getText().trim();

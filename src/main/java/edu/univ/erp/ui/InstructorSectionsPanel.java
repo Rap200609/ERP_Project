@@ -13,6 +13,7 @@ public class InstructorSectionsPanel extends JPanel {
     private final JTable table;
 
     public InstructorSectionsPanel(int instructorId) {
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
         String[] cols = { "Section", "Course", "Semester", "Year", "Capacity", "Room", "Day", "Time" };
         model = new DefaultTableModel(cols, 0) {
@@ -21,7 +22,10 @@ public class InstructorSectionsPanel extends JPanel {
             }
         };
         table = new JTable(model);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UITheme.styleTable(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
         loadSections(instructorId);
     }
 

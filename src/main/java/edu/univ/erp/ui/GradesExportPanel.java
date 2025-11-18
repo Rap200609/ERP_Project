@@ -19,14 +19,24 @@ public class GradesExportPanel extends JPanel {
     public GradesExportPanel(int instructorId) {
         this.instructorId = instructorId;
 
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
         String[] cols = {"Section", "Student Roll No.", "Component", "Score", "Final Grade"};
         model = new DefaultTableModel(cols, 0);
         table = new JTable(model);
+        UITheme.styleTable(table);
         exportBtn = new JButton("Export Grades as CSV");
+        UITheme.stylePrimaryButton(exportBtn);
 
-        add(new JScrollPane(table), BorderLayout.CENTER);
-        add(exportBtn, BorderLayout.SOUTH);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
+        
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UITheme.BG_MAIN);
+        bottomPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        bottomPanel.add(exportBtn);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         loadData();
 

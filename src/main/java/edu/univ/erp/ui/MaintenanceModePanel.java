@@ -13,21 +13,30 @@ public class MaintenanceModePanel extends JPanel {
     private final JButton toggleButton;
 
     public MaintenanceModePanel() {
-        setLayout(new GridBagLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+        
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        UITheme.styleCardPanel(centerPanel);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20);
+        gbc.insets = new Insets(30, 30, 30, 30);
+        gbc.anchor = GridBagConstraints.CENTER;
 
         statusLabel = new JLabel();
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        statusLabel.setForeground(Color.RED);
+        statusLabel.setFont(UITheme.FONT_HEADING);
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         toggleButton = new JButton();
+        toggleButton.setPreferredSize(new Dimension(250, 45));
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(statusLabel, gbc);
+        centerPanel.add(statusLabel, gbc);
         gbc.gridy = 1;
-        add(toggleButton, gbc);
+        gbc.insets = new Insets(20, 30, 30, 30);
+        centerPanel.add(toggleButton, gbc);
+        
+        add(centerPanel, BorderLayout.CENTER);
 
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
@@ -53,10 +62,14 @@ public class MaintenanceModePanel extends JPanel {
         boolean modeOn = maintenanceApi.isMaintenanceModeOn();
         if (modeOn) {
             statusLabel.setText("MAINTENANCE MODE ACTIVE");
+            statusLabel.setForeground(UITheme.ACCENT_WARNING);
             toggleButton.setText("Disable Maintenance Mode");
+            UITheme.styleSecondaryButton(toggleButton);
         } else {
             statusLabel.setText("Maintenance Mode is OFF");
+            statusLabel.setForeground(UITheme.ACCENT_SUCCESS);
             toggleButton.setText("Enable Maintenance Mode");
+            UITheme.stylePrimaryButton(toggleButton);
         }
     }
 }

@@ -34,24 +34,32 @@ public class InstructorGradeEntryPanel extends JPanel {
     public InstructorGradeEntryPanel(int instructorId) {
         this.instructorId = instructorId;
 
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
 
         // Top panel: Section selector
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Select Section:"));
+        topPanel.setBackground(UITheme.BG_MAIN);
+        topPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        JLabel sectionLabel = new JLabel("Select Section:");
+        UITheme.styleLabel(sectionLabel, true);
+        topPanel.add(sectionLabel);
         sectionCombo = new JComboBox<>();
+        UITheme.styleComboBox(sectionCombo);
         sectionCombo.addActionListener(e -> onSectionSelected());
         topPanel.add(sectionCombo);
         add(topPanel, BorderLayout.NORTH);
 
         // Left panel: Student list
         JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createTitledBorder("Students"));
+        leftPanel.setBackground(UITheme.BG_PANEL);
+        leftPanel.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(UITheme.BORDER_LIGHT), "Students"));
         leftPanel.setPreferredSize(new Dimension(250, 0));
 
         studentListModel = new DefaultListModel<>();
         studentList = new JList<>(studentListModel);
+        studentList.setFont(UITheme.FONT_BODY);
         studentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         studentList.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -69,9 +77,11 @@ public class InstructorGradeEntryPanel extends JPanel {
 
         // Center panel: Grade entry table
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
+        centerPanel.setBackground(UITheme.BG_MAIN);
+        centerPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
 
         studentInfoLabel = new JLabel("Select a student to view/edit grades");
-        studentInfoLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        UITheme.styleLabel(studentInfoLabel, true);
         centerPanel.add(studentInfoLabel, BorderLayout.NORTH);
 
         String[] columns = {"Component", "Score", "Max Score", "Weight (%)"};
@@ -88,14 +98,21 @@ public class InstructorGradeEntryPanel extends JPanel {
         };
 
         gradeTable = new JTable(gradeTableModel);
-        gradeTable.setRowHeight(25);
-        centerPanel.add(new JScrollPane(gradeTable), BorderLayout.CENTER);
+        UITheme.styleTable(gradeTable);
+        JScrollPane scrollPane = new JScrollPane(gradeTable);
+        UITheme.styleScrollPane(scrollPane);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Bottom buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(UITheme.BG_MAIN);
+        buttonPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
         JButton addComponentBtn = new JButton("Add Component");
+        UITheme.stylePrimaryButton(addComponentBtn);
         JButton deleteComponentBtn = new JButton("Delete Component");
+        UITheme.styleSecondaryButton(deleteComponentBtn);
         JButton saveBtn = new JButton("Save Grades");
+        UITheme.stylePrimaryButton(saveBtn);
 
         addComponentBtn.addActionListener(e -> {
             if (MaintenanceManager.isMaintenanceModeOn()) {

@@ -28,79 +28,110 @@ public class SectionPanel extends JPanel {
     private List<CourseDetail> courses = List.of();
 
     public SectionPanel() {
-        setLayout(new GridBagLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+        
+        // Form panel at top
+        JPanel formPanel = new JPanel();
+        UITheme.styleCardPanel(formPanel);
+        formPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(new JLabel("Section Code:"), gbc);
+        JLabel codeLabel = new JLabel("Section Code:");
+        UITheme.styleLabel(codeLabel, true);
+        formPanel.add(codeLabel, gbc);
         gbc.gridx = 1;
         sectionCodeField = new JTextField(10);
-        add(sectionCodeField, gbc);
+        UITheme.styleTextField(sectionCodeField);
+        formPanel.add(sectionCodeField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        add(new JLabel("Course:"), gbc);
+        JLabel courseLabel = new JLabel("Course:");
+        UITheme.styleLabel(courseLabel, true);
+        formPanel.add(courseLabel, gbc);
         gbc.gridx = 1;
         courseBox = new JComboBox<>();
-        add(courseBox, gbc);
+        UITheme.styleComboBox(courseBox);
+        formPanel.add(courseBox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        add(new JLabel("Day:"), gbc);
+        JLabel dayLabel = new JLabel("Day:");
+        UITheme.styleLabel(dayLabel, true);
+        formPanel.add(dayLabel, gbc);
         gbc.gridx = 1;
         dayField = new JTextField(12);
-        add(dayField, gbc);
+        UITheme.styleTextField(dayField);
+        formPanel.add(dayField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        add(new JLabel("Time:"), gbc);
+        JLabel timeLabel = new JLabel("Time:");
+        UITheme.styleLabel(timeLabel, true);
+        formPanel.add(timeLabel, gbc);
         gbc.gridx = 1;
         timeField = new JTextField(12);
-        add(timeField, gbc);
+        UITheme.styleTextField(timeField);
+        formPanel.add(timeField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
-        add(new JLabel("Room:"), gbc);
+        JLabel roomLabel = new JLabel("Room:");
+        UITheme.styleLabel(roomLabel, true);
+        formPanel.add(roomLabel, gbc);
         gbc.gridx = 1;
         roomField = new JTextField(12);
-        add(roomField, gbc);
+        UITheme.styleTextField(roomField);
+        formPanel.add(roomField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
-        add(new JLabel("Semester:"), gbc);
+        JLabel semesterLabel = new JLabel("Semester:");
+        UITheme.styleLabel(semesterLabel, true);
+        formPanel.add(semesterLabel, gbc);
         gbc.gridx = 1;
         semesterField = new JTextField(12);
-        add(semesterField, gbc);
+        UITheme.styleTextField(semesterField);
+        formPanel.add(semesterField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
-        add(new JLabel("Year:"), gbc);
+        JLabel yearLabel = new JLabel("Year:");
+        UITheme.styleLabel(yearLabel, true);
+        formPanel.add(yearLabel, gbc);
         gbc.gridx = 1;
         yearField = new JTextField(8);
-        add(yearField, gbc);
+        UITheme.styleTextField(yearField);
+        formPanel.add(yearField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 7;
-        add(new JLabel("Capacity:"), gbc);
+        JLabel capacityLabel = new JLabel("Capacity:");
+        UITheme.styleLabel(capacityLabel, true);
+        formPanel.add(capacityLabel, gbc);
         gbc.gridx = 1;
         capacityField = new JTextField(8);
-        add(capacityField, gbc);
+        UITheme.styleTextField(capacityField);
+        formPanel.add(capacityField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 8;
         JButton addButton = new JButton("Add Section");
-        add(addButton, gbc);
+        UITheme.stylePrimaryButton(addButton);
+        formPanel.add(addButton, gbc);
         gbc.gridx = 1;
         messageLabel = new JLabel();
-        add(messageLabel, gbc);
+        messageLabel.setFont(UITheme.FONT_BODY);
+        formPanel.add(messageLabel, gbc);
+        
+        add(formPanel, BorderLayout.NORTH);
 
-        gbc.gridx = 0;
-        gbc.gridy = 9;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.BOTH;
+        // Table panel filling center
         String[] columns = {
                 "ID", "Section Code", "Course", "Day", "Time", "Room",
                 "Semester", "Year", "Capacity", "Edit", "Delete"
@@ -112,7 +143,10 @@ public class SectionPanel extends JPanel {
             }
         };
         sectionTable = new JTable(tableModel);
-        add(new JScrollPane(sectionTable), gbc);
+        UITheme.styleTable(sectionTable);
+        JScrollPane scrollPane = new JScrollPane(sectionTable);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         addButton.addActionListener(e -> addSection());
         sectionTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -151,6 +185,7 @@ public class SectionPanel extends JPanel {
         }
         ApiResponse response = sectionApi.addSection(command);
         messageLabel.setText(response.getMessage());
+        messageLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
         if (response.isSuccess()) {
             clearFields();
             loadSectionTable();
@@ -269,50 +304,75 @@ public class SectionPanel extends JPanel {
         SectionDetail detail = detailOpt.get();
 
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Section", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(380, 430);
+        dialog.setSize(600, 650);
         dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridBagLayout());
+        dialog.setResizable(true);
+        dialog.getContentPane().setBackground(UITheme.BG_MAIN);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel contentPanel = new JPanel();
+        UITheme.styleCardPanel(contentPanel);
+        contentPanel.setLayout(new GridBagLayout());
         GridBagConstraints base = new GridBagConstraints();
-        base.insets = new Insets(6, 6, 6, 6);
+        base.insets = new Insets(10, 10, 10, 10);
         base.anchor = GridBagConstraints.WEST;
         base.fill = GridBagConstraints.HORIZONTAL;
 
         JTextField codeField = new JTextField(detail.getSectionCode(), 15);
+        UITheme.styleTextField(codeField);
         JComboBox<String> courseField = new JComboBox<>();
+        UITheme.styleComboBox(courseField);
         courses.forEach(c -> courseField.addItem(c.getCourseDisplay()));
         int selectedIndex = findCourseIndex(detail.getCourseId());
         if (selectedIndex >= 0) {
             courseField.setSelectedIndex(selectedIndex);
         }
         JTextField dayField = new JTextField(detail.getDay(), 15);
+        UITheme.styleTextField(dayField);
         JTextField timeField = new JTextField(detail.getTime(), 15);
+        UITheme.styleTextField(timeField);
         JTextField roomField = new JTextField(detail.getRoom(), 15);
+        UITheme.styleTextField(roomField);
         JTextField semesterField = new JTextField(detail.getSemester(), 15);
+        UITheme.styleTextField(semesterField);
         JTextField yearField = new JTextField(String.valueOf(detail.getYear()), 10);
+        UITheme.styleTextField(yearField);
         JTextField capacityField = new JTextField(String.valueOf(detail.getCapacity()), 10);
+        UITheme.styleTextField(capacityField);
 
         int row = 0;
-        addRow(dialog, base, row++, "Section Code:", codeField);
-        addRow(dialog, base, row++, "Course:", courseField);
-        addRow(dialog, base, row++, "Day:", dayField);
-        addRow(dialog, base, row++, "Time:", timeField);
-        addRow(dialog, base, row++, "Room:", roomField);
-        addRow(dialog, base, row++, "Semester:", semesterField);
-        addRow(dialog, base, row++, "Year:", yearField);
-        addRow(dialog, base, row++, "Capacity:", capacityField);
+        addRow(contentPanel, base, row++, "Section Code:", codeField);
+        addRow(contentPanel, base, row++, "Course:", courseField);
+        addRow(contentPanel, base, row++, "Day:", dayField);
+        addRow(contentPanel, base, row++, "Time:", timeField);
+        addRow(contentPanel, base, row++, "Room:", roomField);
+        addRow(contentPanel, base, row++, "Semester:", semesterField);
+        addRow(contentPanel, base, row++, "Year:", yearField);
+        addRow(contentPanel, base, row++, "Capacity:", capacityField);
 
-        JButton saveBtn = new JButton("Save");
+        JButton saveBtn = new JButton("Save Changes");
+        UITheme.stylePrimaryButton(saveBtn);
         JLabel infoLabel = new JLabel();
+        infoLabel.setFont(UITheme.FONT_BODY);
         GridBagConstraints btnConstraints = (GridBagConstraints) base.clone();
         btnConstraints.gridx = 0;
         btnConstraints.gridy = row;
         btnConstraints.gridwidth = 2;
-        dialog.add(saveBtn, btnConstraints);
+        btnConstraints.anchor = GridBagConstraints.CENTER;
+        btnConstraints.fill = GridBagConstraints.NONE;
+        contentPanel.add(saveBtn, btnConstraints);
         GridBagConstraints infoConstraints = (GridBagConstraints) base.clone();
         infoConstraints.gridx = 0;
         infoConstraints.gridy = row + 1;
         infoConstraints.gridwidth = 2;
-        dialog.add(infoLabel, infoConstraints);
+        infoConstraints.anchor = GridBagConstraints.WEST;
+        contentPanel.add(infoLabel, infoConstraints);
+        
+        // Make content scrollable
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(UITheme.BG_PANEL);
+        dialog.add(scrollPane, BorderLayout.CENTER);
 
         saveBtn.addActionListener(e -> {
             AdminSectionApi.SectionCommand command = new AdminSectionApi.SectionCommand();
@@ -331,8 +391,10 @@ public class SectionPanel extends JPanel {
             }
             ApiResponse response = sectionApi.updateSection(sectionId, command);
             infoLabel.setText(response.getMessage());
+            infoLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
             if (response.isSuccess()) {
                 loadSectionTable();
+                dialog.dispose();
             }
         });
 
@@ -355,18 +417,20 @@ public class SectionPanel extends JPanel {
         return -1;
     }
 
-    private void addRow(JDialog dialog, GridBagConstraints base, int row, String labelText, JComponent field) {
+    private void addRow(JPanel panel, GridBagConstraints base, int row, String labelText, JComponent field) {
         GridBagConstraints labelConstraints = (GridBagConstraints) base.clone();
         labelConstraints.gridx = 0;
         labelConstraints.gridy = row;
         labelConstraints.weightx = 0;
-        dialog.add(new JLabel(labelText), labelConstraints);
+        JLabel label = new JLabel(labelText);
+        UITheme.styleLabel(label, true);
+        panel.add(label, labelConstraints);
 
         GridBagConstraints fieldConstraints = (GridBagConstraints) base.clone();
         fieldConstraints.gridx = 1;
         fieldConstraints.gridy = row;
         fieldConstraints.weightx = 1.0;
-        dialog.add(field, fieldConstraints);
+        panel.add(field, fieldConstraints);
     }
 }
 

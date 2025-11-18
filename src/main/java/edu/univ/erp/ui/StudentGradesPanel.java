@@ -31,26 +31,34 @@ public class StudentGradesPanel extends JPanel {
         this.studentId = studentId;
         this.studentApi = studentApi;
 
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
 
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setBackground(UITheme.BG_MAIN);
+        topPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        
         JPanel selectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        selectorPanel.add(new JLabel("Select Course:"));
+        selectorPanel.setBackground(UITheme.BG_MAIN);
+        JLabel selectLabel = new JLabel("Select Course:");
+        UITheme.styleLabel(selectLabel, true);
+        selectorPanel.add(selectLabel);
         courseCombo = new JComboBox<>();
+        UITheme.styleComboBox(courseCombo);
         courseCombo.addActionListener(e -> onCourseSelected());
         selectorPanel.add(courseCombo);
         topPanel.add(selectorPanel, BorderLayout.NORTH);
 
         JPanel infoPanel = new JPanel(new BorderLayout());
+        infoPanel.setBackground(UITheme.BG_MAIN);
         courseInfoLabel = new JLabel("Select a course to view grades");
-        courseInfoLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        UITheme.styleLabel(courseInfoLabel, true);
         finalGradeLabel = new JLabel("Final Grade: N/A");
-        finalGradeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        finalGradeLabel.setForeground(new Color(33, 128, 141));
+        finalGradeLabel.setFont(UITheme.FONT_SUBHEADING);
+        finalGradeLabel.setForeground(UITheme.PRIMARY);
         infoPanel.add(courseInfoLabel, BorderLayout.WEST);
         infoPanel.add(finalGradeLabel, BorderLayout.EAST);
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        infoPanel.setBorder(new javax.swing.border.EmptyBorder(10, 0, 10, 0));
         topPanel.add(infoPanel, BorderLayout.CENTER);
         add(topPanel, BorderLayout.NORTH);
 
@@ -61,8 +69,10 @@ public class StudentGradesPanel extends JPanel {
             }
         };
         JTable table = new JTable(model);
-        table.setRowHeight(25);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        UITheme.styleTable(table);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         loadCourses();
 

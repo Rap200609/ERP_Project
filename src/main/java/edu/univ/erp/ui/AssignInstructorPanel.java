@@ -17,6 +17,7 @@ public class AssignInstructorPanel extends JPanel {
     private List<InstructorOption> instructorOptions = List.of();
 
     public AssignInstructorPanel() {
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
         String[] cols = {
                 "Section ID",
@@ -34,9 +35,12 @@ public class AssignInstructorPanel extends JPanel {
             }
         };
         table = new JTable(tableModel);
+        UITheme.styleTable(table);
         table.getColumn("Update").setCellRenderer(new ButtonRenderer());
         table.getColumn("Update").setCellEditor(new ButtonEditor(new JCheckBox()));
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override

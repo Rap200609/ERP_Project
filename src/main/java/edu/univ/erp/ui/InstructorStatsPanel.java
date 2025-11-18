@@ -18,20 +18,32 @@ public class InstructorStatsPanel extends JPanel {
 
     public InstructorStatsPanel(int instructorId) {
         this.instructorId = instructorId;
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
 
         sectionBox = new JComboBox<>();
+        UITheme.styleComboBox(sectionBox);
         statsArea = new JTextArea(10, 60);
         statsArea.setEditable(false);
+        statsArea.setFont(UITheme.FONT_BODY);
+        statsArea.setBackground(UITheme.BG_PANEL);
+        statsArea.setBorder(UITheme.BORDER_FIELD);
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Section:"));
+        topPanel.setBackground(UITheme.BG_MAIN);
+        topPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        JLabel sectionLabel = new JLabel("Section:");
+        UITheme.styleLabel(sectionLabel, true);
+        topPanel.add(sectionLabel);
         topPanel.add(sectionBox);
         JButton refreshBtn = new JButton("Show Stats");
+        UITheme.stylePrimaryButton(refreshBtn);
         topPanel.add(refreshBtn);
 
         add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(statsArea), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(statsArea);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         loadSections();
 

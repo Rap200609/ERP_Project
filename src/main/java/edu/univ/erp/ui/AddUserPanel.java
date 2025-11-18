@@ -31,22 +31,7 @@ public class AddUserPanel extends JPanel {
     private final JTextField deptField;
     private final JTextField instructorEmailField;
 
-    // ----- Begin color and font palette -----
-    private static final Color BG_COLOR = new Color(245,247,250);
-    private static final Color HEADER_BG = new Color(32, 56, 100);
-    private static final Color HEADER_FG = Color.WHITE;
-    private static final Color LABEL_COLOR = new Color(32, 56, 100);
-    private static final Color FIELD_BG = new Color(236, 240, 249);
-    private static final Color FIELD_BORDER = new Color(115, 143, 188);
-    private static final Color BTN_BG = new Color(115,143,188);
-    private static final Color BTN_BG_HOVER = new Color(93,120,165);
-    private static final Color BTN_FG = Color.WHITE;
-    private static final Color SUCCESS = new Color(0,128,128);
-    private static final Color ERROR = new Color(183,28,28);
-
-    private static final Font LABEL_FONT = new Font("SansSerif", Font.BOLD, 13);
-    private static final Font FIELD_FONT = new Font("SansSerif", Font.PLAIN, 14);
-    // ----- End color and font palette -----
+    // Using UITheme for consistent styling
 
     public AddUserPanel() {
         this(new AdminApi());
@@ -54,8 +39,13 @@ public class AddUserPanel extends JPanel {
 
     public AddUserPanel(AdminApi adminApi) {
         this.adminApi = adminApi;
-        setBackground(BG_COLOR);
-        setLayout(new GridBagLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+        
+        // Form panel at top
+        JPanel formPanel = new JPanel();
+        UITheme.styleCardPanel(formPanel);
+        formPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
@@ -63,63 +53,62 @@ public class AddUserPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel userLabel = new JLabel("Username:");
-        userLabel.setForeground(LABEL_COLOR);
-        userLabel.setFont(LABEL_FONT);
-        add(userLabel, gbc);
+        userLabel.setForeground(UITheme.PRIMARY_DARK);
+        userLabel.setFont(UITheme.FONT_BODY_BOLD);
+        formPanel.add(userLabel, gbc);
 
         gbc.gridx = 1;
         userField = createTextField(15);
-        add(userField, gbc);
+        formPanel.add(userField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
         JLabel passLabel = new JLabel("Password:");
-        passLabel.setForeground(LABEL_COLOR);
-        passLabel.setFont(LABEL_FONT);
-        add(passLabel, gbc);
+        passLabel.setForeground(UITheme.PRIMARY_DARK);
+        passLabel.setFont(UITheme.FONT_BODY_BOLD);
+        formPanel.add(passLabel, gbc);
 
         gbc.gridx = 1;
         passField = new JPasswordField(15);
         styleField(passField);
-        add(passField, gbc);
+        formPanel.add(passField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         JLabel roleLabel = new JLabel("Role:");
-        roleLabel.setForeground(LABEL_COLOR);
-        roleLabel.setFont(LABEL_FONT);
-        add(roleLabel, gbc);
+        roleLabel.setForeground(UITheme.PRIMARY_DARK);
+        roleLabel.setFont(UITheme.FONT_BODY_BOLD);
+        formPanel.add(roleLabel, gbc);
 
         gbc.gridx = 1;
         roleBox = new JComboBox<>(new String[]{"STUDENT", "INSTRUCTOR", "ADMIN"});
-        roleBox.setBackground(FIELD_BG);
-        roleBox.setForeground(LABEL_COLOR);
-        roleBox.setFont(FIELD_FONT);
-        roleBox.setBorder(BorderFactory.createLineBorder(FIELD_BORDER));
-        add(roleBox, gbc);
+        roleBox.setBackground(UITheme.BG_PANEL);
+        roleBox.setForeground(UITheme.PRIMARY_DARK);
+        roleBox.setFont(UITheme.FONT_BODY);
+        roleBox.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_MEDIUM));
+        formPanel.add(roleBox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
         extraFieldsPanel = new JPanel(new GridBagLayout());
         extraFieldsPanel.setOpaque(false);
-        add(extraFieldsPanel, gbc);
+        formPanel.add(extraFieldsPanel, gbc);
         gbc.gridwidth = 1;
 
         JButton addButton = styleButton(new JButton("Add User"));
         gbc.gridx = 0;
         gbc.gridy = 4;
-        add(addButton, gbc);
+        formPanel.add(addButton, gbc);
 
         gbc.gridx = 1;
         messageLabel = new JLabel();
-        messageLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        add(messageLabel, gbc);
+        messageLabel.setFont(UITheme.FONT_BODY);
+        formPanel.add(messageLabel, gbc);
+        
+        add(formPanel, BorderLayout.NORTH);
 
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.BOTH;
+        // Table panel filling center
         tableModel = new DefaultTableModel(new String[]{"ID", "Username", "Role", "Status", "Edit", "Delete"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -127,17 +116,10 @@ public class AddUserPanel extends JPanel {
             }
         };
         userTable = new JTable(tableModel);
-        userTable.setRowHeight(26);
-        userTable.setFont(FIELD_FONT);
-        userTable.setSelectionBackground(new Color(200,215,240));
-        userTable.setSelectionForeground(LABEL_COLOR);
-        userTable.setBackground(BG_COLOR);
-        userTable.getTableHeader().setBackground(HEADER_BG);
-        userTable.getTableHeader().setForeground(HEADER_FG);
-        userTable.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        UITheme.styleTable(userTable);
         JScrollPane tableScroll = new JScrollPane(userTable);
-        tableScroll.getViewport().setBackground(BG_COLOR);
-        add(tableScroll, gbc);
+        UITheme.styleScrollPane(tableScroll);
+        add(tableScroll, BorderLayout.CENTER);
 
         rollNoField = createTextField(12);
         programField = createTextField(12);
@@ -155,9 +137,9 @@ public class AddUserPanel extends JPanel {
         // Hover effect for add button
         addButton.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) { addButton.setBackground(BTN_BG_HOVER); }
+            public void mouseEntered(java.awt.event.MouseEvent evt) { addButton.setBackground(UITheme.PRIMARY_LIGHT); }
             @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) { addButton.setBackground(BTN_BG); }
+            public void mouseExited(java.awt.event.MouseEvent evt) { addButton.setBackground(UITheme.PRIMARY); }
         });
 
         userTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -194,18 +176,10 @@ public class AddUserPanel extends JPanel {
         return tf;
     }
     private void styleField(JTextField field) {
-        field.setBackground(FIELD_BG);
-        field.setForeground(LABEL_COLOR);
-        field.setBorder(BorderFactory.createLineBorder(FIELD_BORDER));
-        field.setFont(FIELD_FONT);
-        field.setCaretColor(new Color(70, 104, 134));
+        UITheme.styleTextField(field);
     }
     private JButton styleButton(JButton btn) {
-        btn.setBackground(BTN_BG);
-        btn.setForeground(BTN_FG);
-        btn.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(8, 24, 8, 24));
+        UITheme.stylePrimaryButton(btn);
         return btn;
     }
 
@@ -223,7 +197,7 @@ public class AddUserPanel extends JPanel {
         command.instructorEmail = instructorEmailField.getText().trim();
 
         ApiResponse response = adminApi.addUser(command);
-        messageLabel.setForeground(response.isSuccess() ? SUCCESS : ERROR);
+        messageLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
         messageLabel.setText(response.getMessage());
         if (response.isSuccess()) {
             userField.setText(""); passField.setText("");
@@ -242,7 +216,7 @@ public class AddUserPanel extends JPanel {
         String role = (String) roleBox.getSelectedItem();
         if ("ADMIN".equals(role)) {
             JLabel lbl = new JLabel("No additional fields required for Admin.");
-            lbl.setFont(FIELD_FONT);
+            lbl.setFont(UITheme.FONT_BODY);
             lbl.setForeground(new Color(120, 120, 120));
             extraFieldsPanel.add(lbl, gbc);
         } else if ("STUDENT".equals(role)) {
@@ -261,8 +235,8 @@ public class AddUserPanel extends JPanel {
     private void addFieldWithLabel(JPanel panel, GridBagConstraints gbc, int row, String label, JTextField field) {
         gbc.gridx = 0; gbc.gridy = row;
         JLabel lbl = new JLabel(label);
-        lbl.setFont(FIELD_FONT);
-        lbl.setForeground(LABEL_COLOR);
+        lbl.setFont(UITheme.FONT_BODY);
+        lbl.setForeground(UITheme.PRIMARY_DARK);
         panel.add(lbl, gbc);
         gbc.gridx = 1;
         panel.add(field, gbc);
@@ -300,19 +274,25 @@ public class AddUserPanel extends JPanel {
         AdminApi.UserDetailsView view = maybeDetails.get();
 
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit User", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(400, 420);
+        dialog.setSize(550, 550);
         dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridBagLayout());
-        dialog.getContentPane().setBackground(BG_COLOR);
+        dialog.setResizable(true);
+        dialog.getContentPane().setBackground(UITheme.BG_MAIN);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel scrollContent = new JPanel();
+        UITheme.styleCardPanel(scrollContent);
+        scrollContent.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JTextField usernameField = createTextField(18);
         usernameField.setText(view.account.getUsername());
         JLabel roleLabel = new JLabel(role);
-        roleLabel.setForeground(LABEL_COLOR);
-        roleLabel.setFont(LABEL_FONT);
+        roleLabel.setForeground(UITheme.PRIMARY_DARK);
+        roleLabel.setFont(UITheme.FONT_BODY_BOLD);
         JPasswordField passField = new JPasswordField(16);
         styleField(passField);
 
@@ -333,51 +313,72 @@ public class AddUserPanel extends JPanel {
         }
 
         gbc.gridx = 0; gbc.gridy = 0;
-        dialog.add(createLabel("Username:"), gbc);
-        gbc.gridx = 1; dialog.add(usernameField, gbc);
+        scrollContent.add(createLabel("Username:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        scrollContent.add(usernameField, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 1;
-        dialog.add(createLabel("Role:"), gbc);
-        gbc.gridx = 1; dialog.add(roleLabel, gbc);
+        scrollContent.add(createLabel("Role:"), gbc);
+        gbc.gridx = 1;
+        scrollContent.add(roleLabel, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2;
-        dialog.add(createLabel("New Password:"), gbc);
-        gbc.gridx = 1; dialog.add(passField, gbc);
+        scrollContent.add(createLabel("New Password:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        scrollContent.add(passField, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 3;
-        dialog.add(createLabel("STUDENT".equals(role) ? "Roll No:" : "Employee ID:"), gbc);
-        gbc.gridx = 1; dialog.add(field1, gbc);
+        scrollContent.add(createLabel("STUDENT".equals(role) ? "Roll No:" : "Employee ID:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        scrollContent.add(field1, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 4;
-        dialog.add(createLabel("STUDENT".equals(role) ? "Program:" : "Department:"), gbc);
-        gbc.gridx = 1; dialog.add(field2, gbc);
+        scrollContent.add(createLabel("STUDENT".equals(role) ? "Program:" : "Department:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        scrollContent.add(field2, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 5;
-        dialog.add(createLabel("STUDENT".equals(role) ? "Year:" : "Email:"), gbc);
-        gbc.gridx = 1; dialog.add(field3, gbc);
+        scrollContent.add(createLabel("STUDENT".equals(role) ? "Year:" : "Email:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        scrollContent.add(field3, gbc);
+        gbc.weightx = 0;
 
         if ("STUDENT".equals(role)) {
             gbc.gridx = 0; gbc.gridy = 6;
-            dialog.add(createLabel("Email:"), gbc);
-            gbc.gridx = 1; dialog.add(field4, gbc);
+            scrollContent.add(createLabel("Email:"), gbc);
+            gbc.gridx = 1; gbc.weightx = 1.0;
+            scrollContent.add(field4, gbc);
+            gbc.weightx = 0;
         }
 
         JButton saveBtn = styleButton(new JButton("Save Changes"));
         JLabel infoLabel = new JLabel();
-        infoLabel.setFont(FIELD_FONT);
-        infoLabel.setForeground(LABEL_COLOR);
+        infoLabel.setFont(UITheme.FONT_BODY);
+        infoLabel.setForeground(UITheme.PRIMARY_DARK);
         // Hover for saveBtn
         saveBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) { saveBtn.setBackground(BTN_BG_HOVER);}
-            public void mouseExited(java.awt.event.MouseEvent evt) { saveBtn.setBackground(BTN_BG);}
+            public void mouseEntered(java.awt.event.MouseEvent evt) { saveBtn.setBackground(UITheme.PRIMARY_LIGHT);}
+            public void mouseExited(java.awt.event.MouseEvent evt) { saveBtn.setBackground(UITheme.PRIMARY);}
         });
 
         gbc.gridx = 0;
         gbc.gridy = "STUDENT".equals(role) ? 7 : 6;
         gbc.gridwidth = 2;
-        dialog.add(saveBtn, gbc);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        scrollContent.add(saveBtn, gbc);
         gbc.gridy++;
-        dialog.add(infoLabel, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        scrollContent.add(infoLabel, gbc);
+        
+        JScrollPane scrollPane = new JScrollPane(scrollContent);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(UITheme.BG_PANEL);
+        dialog.add(scrollPane, BorderLayout.CENTER);
 
         saveBtn.addActionListener(e -> {
             AdminApi.UpdateUserCommand command = new AdminApi.UpdateUserCommand();
@@ -390,7 +391,7 @@ public class AddUserPanel extends JPanel {
                 try {
                     command.studentProfile = new StudentProfile(userId, field1.getText().trim(), field2.getText().trim(), Integer.parseInt(field3.getText().trim()), field4.getText().trim());
                 } catch (NumberFormatException ex) {
-                    infoLabel.setForeground(ERROR);
+                    infoLabel.setForeground(UITheme.ACCENT_ERROR);
                     infoLabel.setText("Year must be a number.");
                     return;
                 }
@@ -399,7 +400,7 @@ public class AddUserPanel extends JPanel {
             }
 
             ApiResponse response = adminApi.updateUser(command);
-            infoLabel.setForeground(response.isSuccess() ? SUCCESS : ERROR);
+            infoLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
             infoLabel.setText(response.getMessage());
             if (response.isSuccess()) {
                 loadUserTable();
@@ -410,8 +411,8 @@ public class AddUserPanel extends JPanel {
 
     private JLabel createLabel(String text) {
         JLabel lbl = new JLabel(text);
-        lbl.setFont(FIELD_FONT);
-        lbl.setForeground(LABEL_COLOR);
+        lbl.setFont(UITheme.FONT_BODY);
+        lbl.setForeground(UITheme.PRIMARY_DARK);
         return lbl;
     }
 
@@ -424,13 +425,19 @@ public class AddUserPanel extends JPanel {
         AdminApi.UserDetailsView view = maybeDetails.get();
 
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Admin", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(350, 200);
+        dialog.setSize(500, 350);
         dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridBagLayout());
-        dialog.getContentPane().setBackground(BG_COLOR);
+        dialog.setResizable(true);
+        dialog.getContentPane().setBackground(UITheme.BG_MAIN);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel contentPanel = new JPanel();
+        UITheme.styleCardPanel(contentPanel);
+        contentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JTextField usernameField = createTextField(18);
         usernameField.setText(view.account.getUsername());
@@ -438,34 +445,43 @@ public class AddUserPanel extends JPanel {
         styleField(passField);
 
         gbc.gridx = 0; gbc.gridy = 0;
-        dialog.add(createLabel("Username:"), gbc); gbc.gridx = 1;
-        dialog.add(usernameField, gbc);
+        contentPanel.add(createLabel("Username:"), gbc); 
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        contentPanel.add(usernameField, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 1;
-        dialog.add(createLabel("New Password:"), gbc); gbc.gridx = 1;
-        dialog.add(passField, gbc);
+        contentPanel.add(createLabel("New Password:"), gbc); 
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        contentPanel.add(passField, gbc);
+        gbc.weightx = 0;
 
         gbc.gridx = 0; gbc.gridy = 2;
         JLabel subLabel = new JLabel("(Leave blank to keep current)");
-        subLabel.setForeground(new Color(120,120,120));
-        subLabel.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        dialog.add(subLabel, gbc);
+        subLabel.setForeground(UITheme.TEXT_SECONDARY);
+        subLabel.setFont(UITheme.FONT_SMALL);
+        contentPanel.add(subLabel, gbc);
 
         JButton saveBtn = styleButton(new JButton("Save Changes"));
         JLabel infoLabel = new JLabel();
-        infoLabel.setFont(FIELD_FONT);
-        infoLabel.setForeground(LABEL_COLOR);
+        infoLabel.setFont(UITheme.FONT_BODY);
+        infoLabel.setForeground(UITheme.PRIMARY_DARK);
 
         // Hover effect for save button
         saveBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) { saveBtn.setBackground(BTN_BG_HOVER);}
-            public void mouseExited(java.awt.event.MouseEvent evt) { saveBtn.setBackground(BTN_BG);}
+            public void mouseEntered(java.awt.event.MouseEvent evt) { saveBtn.setBackground(UITheme.PRIMARY_LIGHT);}
+            public void mouseExited(java.awt.event.MouseEvent evt) { saveBtn.setBackground(UITheme.PRIMARY);}
         });
 
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        dialog.add(saveBtn, gbc);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        contentPanel.add(saveBtn, gbc);
         gbc.gridy = 4;
-        dialog.add(infoLabel, gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        contentPanel.add(infoLabel, gbc);
+        
+        dialog.add(contentPanel, BorderLayout.CENTER);
 
         saveBtn.addActionListener(e -> {
             AdminApi.UpdateUserCommand command = new AdminApi.UpdateUserCommand();
@@ -475,7 +491,7 @@ public class AddUserPanel extends JPanel {
             command.newPassword = new String(passField.getPassword()).trim();
 
             ApiResponse response = adminApi.updateUser(command);
-            infoLabel.setForeground(response.isSuccess() ? SUCCESS : ERROR);
+            infoLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
             infoLabel.setText(response.getMessage());
             if (response.isSuccess()) {
                 loadUserTable();

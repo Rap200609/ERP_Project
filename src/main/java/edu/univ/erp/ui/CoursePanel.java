@@ -18,45 +18,83 @@ public class CoursePanel extends JPanel {
     private JTable courseTable;
 
     public CoursePanel() {
-        setLayout(new GridBagLayout());
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+        
+        // Header
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        headerPanel.setBackground(UITheme.BG_MAIN);
+        headerPanel.setBorder(new javax.swing.border.EmptyBorder(0, 0, 20, 0));
+        JLabel titleLabel = new JLabel("Manage Courses");
+        UITheme.styleHeadingLabel(titleLabel);
+        titleLabel.setFont(UITheme.FONT_HEADING);
+        headerPanel.add(titleLabel);
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Main content panel
+        JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
+        mainPanel.setBackground(UITheme.BG_MAIN);
+        mainPanel.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
+        
+        // Form panel (card style)
+        JPanel formPanel = new JPanel();
+        UITheme.styleCardPanel(formPanel);
+        formPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
 
         gbc.gridx = 0; gbc.gridy = 0;
-        add(new JLabel("Course Code:"), gbc);
+        JLabel codeLabel = new JLabel("Course Code:");
+        UITheme.styleLabel(codeLabel, true);
+        formPanel.add(codeLabel, gbc);
         gbc.gridx = 1;
-        codeField = new JTextField(12);
-        add(codeField, gbc);
+        codeField = new JTextField(15);
+        UITheme.styleTextField(codeField);
+        formPanel.add(codeField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1;
-        add(new JLabel("Title:"), gbc);
+        JLabel titleLabel2 = new JLabel("Title:");
+        UITheme.styleLabel(titleLabel2, true);
+        formPanel.add(titleLabel2, gbc);
         gbc.gridx = 1;
-        titleField = new JTextField(18);
-        add(titleField, gbc);
+        titleField = new JTextField(20);
+        UITheme.styleTextField(titleField);
+        formPanel.add(titleField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2;
-        add(new JLabel("Credits:"), gbc);
+        JLabel creditsLabel = new JLabel("Credits:");
+        UITheme.styleLabel(creditsLabel, true);
+        formPanel.add(creditsLabel, gbc);
         gbc.gridx = 1;
         creditsField = new JTextField(5);
-        add(creditsField, gbc);
+        UITheme.styleTextField(creditsField);
+        formPanel.add(creditsField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3;
-        add(new JLabel("Description:"), gbc);
+        JLabel descLabel = new JLabel("Description:");
+        UITheme.styleLabel(descLabel, true);
+        formPanel.add(descLabel, gbc);
         gbc.gridx = 1;
-        descField = new JTextArea(3, 18);
+        descField = new JTextArea(3, 20);
         descField.setLineWrap(true);
         descField.setWrapStyleWord(true);
-        add(new JScrollPane(descField), gbc);
+        descField.setFont(UITheme.FONT_BODY);
+        descField.setBorder(UITheme.BORDER_FIELD);
+        formPanel.add(new JScrollPane(descField), gbc);
 
         gbc.gridx = 0; gbc.gridy = 4;
         JButton addButton = new JButton("Add Course");
-        add(addButton, gbc);
+        UITheme.stylePrimaryButton(addButton);
+        formPanel.add(addButton, gbc);
         gbc.gridx = 1;
         messageLabel = new JLabel();
-        add(messageLabel, gbc);
+        messageLabel.setFont(UITheme.FONT_SMALL);
+        formPanel.add(messageLabel, gbc);
+        
+        mainPanel.add(formPanel, BorderLayout.NORTH);
 
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.BOTH;
+        // Table panel - fills center
         String[] columns = {"ID", "Code", "Title", "Credits", "Description", "Edit", "Delete"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
@@ -65,7 +103,12 @@ public class CoursePanel extends JPanel {
             }
         };
         courseTable = new JTable(tableModel);
-        add(new JScrollPane(courseTable), gbc);
+        UITheme.styleTable(courseTable);
+        JScrollPane scrollPane = new JScrollPane(courseTable);
+        UITheme.styleScrollPane(scrollPane);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        
+        add(mainPanel, BorderLayout.CENTER);
 
         addButton.addActionListener(e -> addCourse());
         courseTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -124,6 +167,7 @@ public class CoursePanel extends JPanel {
 
         ApiResponse response = courseApi.addCourse(code, title, credits, desc);
         messageLabel.setText(response.getMessage());
+        messageLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
         if (response.isSuccess()) {
             codeField.setText("");
             titleField.setText("");
@@ -135,17 +179,30 @@ public class CoursePanel extends JPanel {
 
     private void editCourseDialog(int courseId) {
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Edit Course", Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setSize(320, 380);
+        dialog.setSize(550, 500);
         dialog.setLocationRelativeTo(this);
-        dialog.setLayout(new GridBagLayout());
+        dialog.setResizable(true);
+        dialog.getContentPane().setBackground(UITheme.BG_MAIN);
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel contentPanel = new JPanel();
+        UITheme.styleCardPanel(contentPanel);
+        contentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(7, 7, 7, 7); gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        JTextField codeField = new JTextField(14);
-        JTextField titleField = new JTextField(18);
+        JTextField codeField = new JTextField(15);
+        UITheme.styleTextField(codeField);
+        JTextField titleField = new JTextField(20);
+        UITheme.styleTextField(titleField);
         JTextField creditsField = new JTextField(5);
-        JTextArea descField = new JTextArea(3,18);
-        descField.setLineWrap(true); descField.setWrapStyleWord(true);
+        UITheme.styleTextField(creditsField);
+        JTextArea descField = new JTextArea(3, 20);
+        descField.setLineWrap(true);
+        descField.setWrapStyleWord(true);
+        descField.setFont(UITheme.FONT_BODY);
+        descField.setBorder(UITheme.BORDER_FIELD);
 
         Optional<CourseDetail> detailOpt = courseApi.loadCourse(courseId);
         if (detailOpt.isEmpty()) {
@@ -158,19 +215,37 @@ public class CoursePanel extends JPanel {
         creditsField.setText(String.valueOf(detail.getCredits()));
         descField.setText(detail.getDescription());
 
-        gbc.gridx=0; gbc.gridy=0; dialog.add(new JLabel("Code:"), gbc);
-        gbc.gridx=1; dialog.add(codeField, gbc);
-        gbc.gridx=0; gbc.gridy=1; dialog.add(new JLabel("Title:"), gbc);
-        gbc.gridx=1; dialog.add(titleField, gbc);
-        gbc.gridx=0; gbc.gridy=2; dialog.add(new JLabel("Credits:"), gbc);
-        gbc.gridx=1; dialog.add(creditsField, gbc);
-        gbc.gridx=0; gbc.gridy=3; dialog.add(new JLabel("Description:"), gbc);
-        gbc.gridx=1; dialog.add(new JScrollPane(descField), gbc);
+        gbc.gridx=0; gbc.gridy=0;
+        JLabel codeLabel = new JLabel("Code:");
+        UITheme.styleLabel(codeLabel, true);
+        contentPanel.add(codeLabel, gbc);
+        gbc.gridx=1; contentPanel.add(codeField, gbc);
+        gbc.gridx=0; gbc.gridy=1;
+        JLabel titleLabel = new JLabel("Title:");
+        UITheme.styleLabel(titleLabel, true);
+        contentPanel.add(titleLabel, gbc);
+        gbc.gridx=1; contentPanel.add(titleField, gbc);
+        gbc.gridx=0; gbc.gridy=2;
+        JLabel creditsLabel = new JLabel("Credits:");
+        UITheme.styleLabel(creditsLabel, true);
+        contentPanel.add(creditsLabel, gbc);
+        gbc.gridx=1; contentPanel.add(creditsField, gbc);
+        gbc.gridx=0; gbc.gridy=3;
+        JLabel descLabel = new JLabel("Description:");
+        UITheme.styleLabel(descLabel, true);
+        contentPanel.add(descLabel, gbc);
+        gbc.gridx=1; contentPanel.add(new JScrollPane(descField), gbc);
 
         JButton saveBtn = new JButton("Save Changes");
+        UITheme.stylePrimaryButton(saveBtn);
         JLabel infoLabel = new JLabel();
-        gbc.gridx=0; gbc.gridy=4; gbc.gridwidth=2; dialog.add(saveBtn, gbc);
-        gbc.gridy=5; dialog.add(infoLabel, gbc);
+        infoLabel.setFont(UITheme.FONT_SMALL);
+        gbc.gridx=0; gbc.gridy=4; gbc.gridwidth=2; gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(saveBtn, gbc);
+        gbc.gridy=5; gbc.anchor = GridBagConstraints.WEST;
+        contentPanel.add(infoLabel, gbc);
+        
+        dialog.add(contentPanel, BorderLayout.CENTER);
 
         saveBtn.addActionListener(e -> {
             String code = codeField.getText().trim();
@@ -191,8 +266,10 @@ public class CoursePanel extends JPanel {
             }
             ApiResponse response = courseApi.updateCourse(courseId, code, title, credits, desc);
             infoLabel.setText(response.getMessage());
+            infoLabel.setForeground(response.isSuccess() ? UITheme.ACCENT_SUCCESS : UITheme.ACCENT_ERROR);
             if (response.isSuccess()) {
                 loadCourseTable();
+                dialog.dispose();
             }
         });
 

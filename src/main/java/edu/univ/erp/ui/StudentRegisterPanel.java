@@ -23,8 +23,8 @@ public class StudentRegisterPanel extends JPanel {
     public StudentRegisterPanel(int studentId, StudentApi studentApi) {
         this.studentId = studentId;
         this.studentApi = studentApi;
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
 
         catalogModel = new DefaultTableModel(new String[]{"Section Code", "Course", "Instructor", "Available Seats", "Enroll"}, 0) {
             @Override
@@ -39,11 +39,16 @@ public class StudentRegisterPanel extends JPanel {
         };
 
         catalogTable = new JTable(catalogModel);
-        catalogTable.setRowHeight(25);
-        add(new JScrollPane(catalogTable), BorderLayout.CENTER);
+        UITheme.styleTable(catalogTable);
+        JScrollPane scrollPane = new JScrollPane(catalogTable);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(UITheme.BG_MAIN);
+        bottomPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
         JButton registerBtn = new JButton("Register Selected Sections");
+        UITheme.stylePrimaryButton(registerBtn);
         registerBtn.addActionListener(e -> registerSelectedSections());
         bottomPanel.add(registerBtn);
         add(bottomPanel, BorderLayout.SOUTH);
