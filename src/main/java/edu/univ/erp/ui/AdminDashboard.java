@@ -20,7 +20,7 @@ public class AdminDashboard extends JFrame {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(200, 0));
-        sidebar.setBackground(new Color(240, 240, 240));
+        sidebar.setBackground(new Color(32, 56, 100));  // Deep Navy Blue
 
         String[] menuItems = {
             "Manage Users",
@@ -36,8 +36,10 @@ public class AdminDashboard extends JFrame {
         for (String item : menuItems) {
             JButton btn = createMenuButton(item);
             sidebar.add(btn);
-            sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+            sidebar.add(Box.createRigidArea(new Dimension(0, 5))); // Vertical spacing between buttons
         }
+
+        sidebar.add(Box.createVerticalGlue());
 
         add(sidebar, BorderLayout.WEST);
 
@@ -54,6 +56,19 @@ public class AdminDashboard extends JFrame {
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setMaximumSize(new Dimension(180, 40));
         btn.setPreferredSize(new Dimension(180, 40));
+        btn.setBackground(new Color(230, 236, 245));
+        btn.setForeground(new Color(33, 37, 41));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 15));
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(200, 215, 240)); // Hover color
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(230, 236, 245));
+            }
+        });
         btn.addActionListener(e -> handleMenuClick(text));
         return btn;
     }

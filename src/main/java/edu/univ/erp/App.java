@@ -19,6 +19,7 @@ public class App
             // Continue with default look and feel
         }
         
+        // Runs all GUI related code in the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             new LoginFrame().setVisible(true);
         });

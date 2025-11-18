@@ -29,7 +29,6 @@ mysql -u root -p < database/03_seed_data.sql
 ```
 
 Notes:
-- The script `database/04_add_lockout_columns.sql` is not required and has been removed.
 - Ensure MySQL is running on `localhost:3306` and accessible with your credentials.
 
 ## Running the Application
