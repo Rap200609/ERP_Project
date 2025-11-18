@@ -3,6 +3,7 @@ package edu.univ.erp.ui;
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder; // Fixed Import
 
 import edu.univ.erp.ui.theme.AppColors;
 import edu.univ.erp.ui.theme.UIStyles;
@@ -12,68 +13,84 @@ public class StudentDashboard extends JFrame {
     private JPanel contentPanel;
     private MaintenanceBanner banner;
 
-       
-
-
     public StudentDashboard(int studentId) {
-        // ... setup ...
-        UIStyles.initFrame(this); // Apply BG color
-        setLayout(new BorderLayout(0, 0)); // No gaps
+        this.studentId = studentId;
+        setTitle("Student Dashboard");
+        setSize(1200, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        
+        // Use the updated UIStyles
+        UIStyles.initFrame(this);
+        setLayout(new BorderLayout(0, 0));
 
-        // --- 1. SIDEBAR ---
+        // Add maintenance banner
+        banner = new MaintenanceBanner();
+        // We wrap the banner to prevent it from breaking the layout
+        JPanel topContainer = new JPanel(new BorderLayout());
+        topContainer.add(banner, BorderLayout.NORTH);
+        add(topContainer, BorderLayout.NORTH);
+        
+        banner.checkAndDisplay();
+
+        // Sidebar
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(Color.WHITE); // White Sidebar
         sidebar.setPreferredSize(new Dimension(240, 0));
-        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, AppColors.BORDER)); // Right border only
+        UIStyles.styleSidebarPanel(sidebar);
 
-        // Logo Area
+        // Sidebar Header
         JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
-        logoPanel.setBackground(Color.WHITE);
-        JLabel logo = new JLabel("Student Portal");
-        logo.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        logo.setForeground(AppColors.PRIMARY);
-        logoPanel.add(logo);
+        logoPanel.setOpaque(false);
+        JLabel heading = new JLabel("Student Portal");
+        heading.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        heading.setForeground(AppColors.PRIMARY);
+        logoPanel.add(heading);
         sidebar.add(logoPanel);
 
-        // Menu Items
-        String[] menuItems = { "Course Catalog", "Register Section", "Drop Section", "My Timetable", "View Grades", "Download Transcript", "Logout" };
-        
+        sidebar.add(Box.createVerticalStrut(10));
+
+        String[] menuItems = {
+            "Course Catalog",
+            "Register Section",
+            "Drop Section",
+            "My Timetable",
+            "View Grades",
+            "Download Transcript",
+            "Change Password",
+            "Logout"
+        };
+
         for (String item : menuItems) {
             JButton btn = new JButton(item);
-            UIStyles.sidebarButton(btn); // Apply style
-            btn.setMaximumSize(new Dimension(220, 45)); // Uniform size
+            btn.setMaximumSize(new Dimension(220, 45));
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
-            btn.addActionListener(e -> handleMenuClick(item)); // Your existing logic
-            
+            UIStyles.styleSidebarButton(btn);
+            btn.addActionListener(e -> handleMenuClick(item));
             sidebar.add(btn);
-            sidebar.add(Box.createVerticalStrut(5)); // Spacing
+            sidebar.add(Box.createVerticalStrut(5));
         }
-        
+
+        sidebar.add(Box.createVerticalGlue());
         add(sidebar, BorderLayout.WEST);
 
-        // --- 2. CONTENT AREA ---
+        // Content Area
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(AppColors.BACKGROUND); // Light Gray
-        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Padding around the "Card"
-
-        add(contentPanel, BorderLayout.CENTER);
+        UIStyles.applyContentBackground(contentPanel);
+        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         
-        // Initial load
-        showPanel("Course Catalog");
-    }
+        // Add content to center (underneath topContainer if using BorderLayout)
+        // Since we added topContainer to NORTH, we add this to CENTER
+        add(contentPanel, BorderLayout.CENTER);
 
-    private JButton createMenuButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-        btn.setPreferredSize(new Dimension(180, 44));
-        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
-        UIStyles.styleSidebarButton(btn);
-        btn.addActionListener(e -> handleMenuClick(text));
-        return btn;
+        showPanel("Course Catalog");
+        
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowActivated(java.awt.event.WindowEvent e) {
+                banner.checkAndDisplay();
+            }
+        });
     }
 
     private void handleMenuClick(String menuItem) {
@@ -97,36 +114,78 @@ public class StudentDashboard extends JFrame {
 
     private void showPanel(String panelName) {
         contentPanel.removeAll();
-    
-        JPanel activePanel = null;
-        // ... switch logic (same as before) ...
-        // e.g. activePanel = new StudentCourseCatalogPanel();
-    
-        if (activePanel != null) {
-            // Wrap the functional panel in a visual card
+        banner.checkAndDisplay();
+        
+        JPanel panel = null;
+        switch (panelName) {
+            case "Course Catalog":
+                panel = new StudentCourseCatalogPanel();
+                break;
+            case "Register Section":
+                panel = new StudentRegisterPanel(studentId);
+                break;
+            case "Drop Section":
+                panel = new StudentDropPanel(studentId);
+                break;
+            case "My Timetable":
+                panel = new StudentTimetablePanel(studentId);
+                break;
+            case "View Grades":
+                panel = new StudentGradesPanel(studentId);
+                break;
+            case "Download Transcript":
+                panel = new StudentTranscriptPanel(studentId);
+                break;
+        }
+
+        if (panel != null) {
+            // Create a Card Wrapper
             JPanel cardWrapper = new JPanel(new BorderLayout());
             cardWrapper.setBackground(Color.WHITE);
             cardWrapper.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(AppColors.BORDER),
+                new LineBorder(AppColors.BORDER, 1, true),
                 new EmptyBorder(20, 20, 20, 20)
             ));
-            
-            // Add Title
+
             JLabel title = new JLabel(panelName);
-            title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+            title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            title.setForeground(AppColors.TEXT_PRIMARY);
             title.setBorder(new EmptyBorder(0, 0, 20, 0));
+            
             cardWrapper.add(title, BorderLayout.NORTH);
             
-            // If the panel uses a JTable, style it!
-            // (You might need to do this inside the specific Panel classes, 
-            // or traverse components here)
-            styleComponentsRecursively(activePanel);
-
-            cardWrapper.add(activePanel, BorderLayout.CENTER);
+            // Apply styles to the loaded panel
+            styleComponentsRecursively(panel);
+            
+            // Ensure the loaded panel is transparent so the white card shows
+            panel.setOpaque(false);
+            
+            cardWrapper.add(panel, BorderLayout.CENTER);
             contentPanel.add(cardWrapper, BorderLayout.CENTER);
         }
-    
-    contentPanel.revalidate();
-    contentPanel.repaint();
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    // Recursive styling method (Fixed)
+    private void styleComponentsRecursively(Container container) {
+        for (Component c : container.getComponents()) {
+            if (c instanceof JTable) {
+                UIStyles.styleTable((JTable) c);
+            } else if (c instanceof JButton) {
+                // Only style if not already styled (simple check)
+                JButton b = (JButton) c;
+                if (b.getBackground().equals(new JButton().getBackground())) {
+                   UIStyles.primaryButton(b);
+                }
+            } else if (c instanceof JTextField) {
+                UIStyles.inputField((JTextField) c);
+            } else if (c instanceof JScrollPane) {
+                UIStyles.softenScrollPane((JScrollPane) c);
+            } else if (c instanceof Container) {
+                styleComponentsRecursively((Container) c);
+            }
+        }
     }
 }

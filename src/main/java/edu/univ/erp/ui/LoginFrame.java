@@ -22,7 +22,7 @@ public class LoginFrame extends JFrame {
         setLocationRelativeTo(null);
         UIStyles.initFrame(this);
 
-        // Main Layout: Split Screen (Left: Graphic/Logo, Right: Form)
+        // Main Layout: Split Screen (Left: Graphic, Right: Form)
         setLayout(new GridLayout(1, 2));
 
         // LEFT SIDE: Branding
