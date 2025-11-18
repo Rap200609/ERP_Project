@@ -1,8 +1,8 @@
 package edu.univ.erp;
 
 import javax.swing.SwingUtilities;
-import com.formdev.flatlaf.FlatLightLaf;
 import edu.univ.erp.ui.LoginFrame;
+import edu.univ.erp.ui.theme.UniversityThemeLaf;
 
 /**
  * University ERP System - Main Entry Point
@@ -13,9 +13,10 @@ public class App
     {
         // Set modern look and feel
         try {
-            FlatLightLaf.setup();
-        } catch (Exception e) {
-            System.err.println("Failed to set FlatLaf look and feel: " + e.getMessage());
+            UniversityThemeLaf.setup();
+        } 
+        catch (Exception e) {
+            System.err.println("Failed to set University theme: " + e.getMessage());
             // Continue with default look and feel
         }
         

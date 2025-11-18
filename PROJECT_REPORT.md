@@ -353,19 +353,4 @@ ERP_Project/
 └── Documentation files
 ```
 
-### B. Dependencies
-- MySQL Connector/J 8.0.33
-- HikariCP 5.0.1
-- jBCrypt 0.4
-- FlatLaf 3.2.5
-- iText 4.2.2
-- OpenCSV 5.8
-
-### C. Database Setup
-See `database/README_DATABASE_SETUP.md` for detailed setup instructions.
-
----
-
-**Report Prepared By**: _______________  
-**Date**: _______________
 

@@ -11,7 +11,7 @@
 
 | Username | Password | Role | Purpose |
 |----------|----------|------|---------|
-| admin1 | admin | Admin | Full system access testing |
+| admin | admin | Admin | Full system access testing |
 | inst1 | instructor | Instructor | Instructor features testing |
 | stu1 | student | Student | Student features testing |
 | stu2 | student | Student | Additional student testing |
@@ -35,7 +35,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 **Steps:**
 1. Launch application
 2. Enter username: `admin`
-3. Enter password: `admin123`
+3. Enter password: `admin`
 4. Click "Login"
 
 **Expected Result:**

@@ -9,7 +9,7 @@
 2. **MySQL Database Server**
    - Version: MySQL 8.0 or higher
    - Running on: `localhost:3306`
-   - Default user: `root` (or update in DatabaseConfig.java)
+   - Default user: `root` (or update in `DatabaseConfig.java`)
 
 3. **Maven** (Optional, for building)
    - Version: 3.6 or higher
@@ -26,7 +26,15 @@ Navigate to the `database/` folder and run the SQL scripts in order:
 mysql -u root -p < database/01_schema_auth.sql
 mysql -u root -p < database/02_schema_main.sql
 mysql -u root -p < database/03_seed_data.sql
+```
 
+```bash
+# Option 2: Using MySQL client (interactive)
+# In MySQL shell:
+# mysql> SOURCE C:/path/to/ERP_Project/database/01_schema_auth.sql;
+# mysql> SOURCE C:/path/to/ERP_Project/database/02_schema_main.sql;
+# mysql> SOURCE C:/path/to/ERP_Project/database/03_seed_data.sql;
+```
 
 ## Running the Application
 
@@ -36,19 +44,20 @@ mvn clean compile
 
 # Run the application
 mvn exec:java -Dexec.mainClass="edu.univ.erp.App"
+```
 
+Alternatively, run `App.java` directly from your IDE.
 
 ## Default Test Accounts
 
 After running seed data, you can login with:
 
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `admin123` | Admin |
-| `inst1` | `inst1_1` | Instructor |
-| `stu1` | `stu1_1` | Student |
-| `stu2` | `stu2_2` | Student |
-
+| Username | Password   | Role       |
+|----------|------------|------------|
+| `admin`  | `admin`    | Admin      |
+| `inst1`  | `instructor` | Instructor |
+| `stu1`   | `student`  | Student    |
+| `stu2`   | `student`  | Student    |
 
 ## Features Overview
 

@@ -2,6 +2,10 @@ package edu.univ.erp.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.border.EmptyBorder;
+
+import edu.univ.erp.ui.theme.AppColors;
+import edu.univ.erp.ui.theme.UIStyles;
 
 public class StudentDashboard extends JFrame {
     private int studentId;
@@ -14,6 +18,7 @@ public class StudentDashboard extends JFrame {
         setSize(1200, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        UIStyles.applyFrameBackground(this);
         
         // Main layout
         setLayout(new BorderLayout());
@@ -26,8 +31,15 @@ public class StudentDashboard extends JFrame {
         // Left sidebar with navigation buttons
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(200, 0));
-        sidebar.setBackground(new Color(240, 240, 240));
+        sidebar.setPreferredSize(new Dimension(220, 0));
+        UIStyles.styleSidebarPanel(sidebar);
+
+        JLabel heading = new JLabel("Student Portal");
+        heading.setAlignmentX(Component.LEFT_ALIGNMENT);
+        heading.setForeground(AppColors.TEXT_PRIMARY);
+        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 18f));
+        sidebar.add(heading);
+        sidebar.add(Box.createVerticalStrut(16));
 
         String[] menuItems = {
             "Course Catalog",
@@ -46,11 +58,14 @@ public class StudentDashboard extends JFrame {
             sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
         }
 
+        sidebar.add(Box.createVerticalGlue());
+
         add(sidebar, BorderLayout.WEST);
 
         // Content area
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        UIStyles.applyContentBackground(contentPanel);
+        contentPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
         add(contentPanel, BorderLayout.CENTER);
 
         // Show course catalog by default
@@ -67,9 +82,12 @@ public class StudentDashboard extends JFrame {
 
     private JButton createMenuButton(String text) {
         JButton btn = new JButton(text);
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(180, 40));
-        btn.setPreferredSize(new Dimension(180, 40));
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+        btn.setPreferredSize(new Dimension(180, 44));
+        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        UIStyles.styleSidebarButton(btn);
         btn.addActionListener(e -> handleMenuClick(text));
         return btn;
     }

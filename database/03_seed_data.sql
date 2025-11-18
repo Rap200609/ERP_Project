@@ -27,7 +27,7 @@ INSERT INTO users_auth (username, role, password_hash) VALUES
 ON DUPLICATE KEY UPDATE username = username;
 
 -- Get the user_ids for reference (will be set below)
-SET @admin_id = (SELECT user_id FROM users_auth WHERE username = 'admin1');
+SET @admin_id = (SELECT user_id FROM users_auth WHERE username = 'admin');
 SET @inst_id = (SELECT user_id FROM users_auth WHERE username = 'inst1');
 SET @stu1_id = (SELECT user_id FROM users_auth WHERE username = 'stu1');
 SET @stu2_id = (SELECT user_id FROM users_auth WHERE username = 'stu2');

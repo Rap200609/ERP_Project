@@ -3,14 +3,14 @@
 ## 📋 **Required Documentation Status**
 
 ### ✅ **Complete and Ready**
-- **HOW_TO_RUN.md** - Complete setup and running instructions ✅
+- **HOW_TO_RUN.md** - Setup and running instructions ✅
 - **TEST_PLAN.md** - Comprehensive test plan with 46 test cases ✅
 - **TEST_SUMMARY.md** - Template for test results ✅
 - **PROJECT_REPORT.md** - 5-7 page report template ready for screenshots ✅
 - **database/01_schema_auth.sql** - Auth database schema ✅
 - **database/02_schema_main.sql** - Main ERP database schema ✅
 - **database/03_seed_data.sql** - Sample data (admin1, inst1, stu1, stu2) ✅
-- **database/README_DATABASE_SETUP.md** - Database setup guide ✅
+- Database setup covered in `HOW_TO_RUN.md` ✅
 
 ### 📝 **Action Required Before Submission**
 1. **Fill TEST_SUMMARY.md** - Run tests from TEST_PLAN.md and record results
@@ -25,7 +25,7 @@
 
 **Current Implementation:**
 ```
-ui/ → DatabaseConfig (direct DB access)
+ui/ → data (DatabaseConfig) and selected dao/service/api classes
 ```
 
 **PDF Suggested Architecture:**
@@ -34,14 +34,13 @@ ui/ → api/ → service/ → data/
 ```
 
 **Issue:** 
-- UI panels directly call database instead of going through API → Service → Data layers
-- Empty packages exist: `access`, `domain`, `service` (not used)
+- Some UI panels may access data helpers directly instead of going through API → Service → Data layers
+- Packages exist for `domain`, `service`, and `api`, but not all flows are wired exclusively through them yet
 - May affect "Code/Project organization" grading (10 points)
 
 **Current Status:**
-- Code works perfectly
-- All functionality is implemented correctly
-- This is a structural/organizational issue, not a functional issue
+- Functionality implemented for major flows
+- Structural/organizational refinements recommended for strict layering
 
 **Options:**
 1. **Refactor** - Restructure code to follow API/Service/Data layers (significant work, 15-20 hours)

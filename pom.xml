@@ -56,6 +56,13 @@
         <artifactId>itext</artifactId>
         <version>2.1.7</version>
     </dependency>
+
+    <!-- SLF4J Simple Logger (to silence SLF4J warnings) -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>2.0.9</version>
+    </dependency>
     
   </dependencies>
 
