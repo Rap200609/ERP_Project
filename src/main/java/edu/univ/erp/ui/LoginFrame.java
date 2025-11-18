@@ -1,199 +1,118 @@
 package edu.univ.erp.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionListener;
-
 import edu.univ.erp.auth.AuthService;
 import edu.univ.erp.data.DatabaseConfig;
 import edu.univ.erp.ui.theme.AppColors;
-import edu.univ.erp.ui.theme.GradientPanel;
 import edu.univ.erp.ui.theme.UIStyles;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 public class LoginFrame extends JFrame {
 
     private final JTextField userField = new JTextField(20);
     private final JPasswordField passField = new JPasswordField(20);
-    private final JLabel messageLabel = new JLabel("", SwingConstants.CENTER);
+    private final JLabel messageLabel = new JLabel(" ");
 
     public LoginFrame() {
-        setTitle("University ERP Login");
-        setSize(520, 420);
-        setMinimumSize(new Dimension(520, 380));
+        setTitle("University ERP");
+        setSize(900, 600); // Larger default size
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(true);
+        UIStyles.initFrame(this);
 
-        UIStyles.applyFrameBackground(this);
-        getRootPane().setBorder(new EmptyBorder(0, 0, 20, 0));
+        // Main Layout: Split Screen (Left: Graphic/Logo, Right: Form)
+        setLayout(new GridLayout(1, 2));
 
-        JPanel root = new JPanel(new BorderLayout());
-        root.setOpaque(false);
-        setContentPane(root);
-
-        root.add(createHeroPanel(), BorderLayout.NORTH);
+        // LEFT SIDE: Branding
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        leftPanel.setBackground(AppColors.PRIMARY);
         
-        // Wrap form panel in scroll pane
-        JPanel formPanel = createFormPanel();
-        JScrollPane scrollPane = new JScrollPane(formPanel);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        UIStyles.softenScrollPane(scrollPane);
-        root.add(scrollPane, BorderLayout.CENTER);
+        JLabel brandTitle = new JLabel("University ERP");
+        brandTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        brandTitle.setForeground(Color.WHITE);
+        
+        JLabel brandSub = new JLabel("Student & Faculty Management System");
+        brandSub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        brandSub.setForeground(new Color(255, 255, 255, 200));
 
-        JButton loginButton = new JButton("Sign In");
-        UIStyles.stylePrimaryButton(loginButton);
-        loginButton.addActionListener(doLogin());
-        getRootPane().setDefaultButton(loginButton);
+        GridBagConstraints gbcLeft = new GridBagConstraints();
+        gbcLeft.gridx = 0; gbcLeft.gridy = 0;
+        leftPanel.add(brandTitle, gbcLeft);
+        gbcLeft.gridy = 1;
+        gbcLeft.insets = new Insets(10, 0, 0, 0);
+        leftPanel.add(brandSub, gbcLeft);
+        
+        add(leftPanel);
 
-        JPanel actionPanel = new JPanel();
-        actionPanel.setOpaque(false);
-        actionPanel.setBorder(new EmptyBorder(12, 32, 12, 32));
-        actionPanel.add(loginButton);
-        root.add(actionPanel, BorderLayout.SOUTH);
+        // RIGHT SIDE: Login Form
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBackground(Color.WHITE);
 
-        SwingUtilities.invokeLater(() -> userField.requestFocusInWindow());
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
-    }
-
-    private JPanel createHeroPanel() {
-        GradientPanel header = new GradientPanel(AppColors.PRIMARY, AppColors.PRIMARY_LIGHT);
-        header.setLayout(new BorderLayout());
-        header.setBorder(new EmptyBorder(28, 32, 28, 32));
-
-        JLabel title = new JLabel("University ERP System");
-        title.setForeground(Color.WHITE);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));
-
-        JLabel subtitle = new JLabel("Manage courses, grades, and enrolments seamlessly.");
-        subtitle.setForeground(new Color(255, 255, 255, 220));
-        subtitle.setFont(subtitle.getFont().deriveFont(Font.PLAIN, 15f));
-
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setOpaque(false);
-        textPanel.add(title);
-        textPanel.add(Box.createVerticalStrut(6));
-        textPanel.add(subtitle);
-
-        header.add(textPanel, BorderLayout.CENTER);
-        return header;
-    }
-
-    private JPanel createFormPanel() {
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setOpaque(false);
-
-        JPanel card = UIStyles.createCardPanel();
-        card.setLayout(new GridBagLayout());
-        card.setOpaque(true);
-
+        JPanel formCard = new JPanel(new GridBagLayout());
+        formCard.setBackground(Color.WHITE);
+        
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(4, 0, 12, 0);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
+        gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel welcome = new JLabel("Welcome back!");
-        welcome.setForeground(AppColors.TEXT_PRIMARY);
-        welcome.setFont(welcome.getFont().deriveFont(Font.BOLD, 18f));
-        card.add(welcome, gbc);
+        // Header
+        JLabel loginTitle = UIStyles.headerLabel("Welcome Back");
+        loginTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        formCard.add(loginTitle, gbc);
 
+        // Username
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 16, 0);
-        JLabel hint = new JLabel("Sign in using the credentials provided by the administrator.");
-        hint.setForeground(AppColors.TEXT_SECONDARY);
-        hint.setFont(hint.getFont().deriveFont(Font.PLAIN, 13f));
-        card.add(hint, gbc);
-
+        formCard.add(new JLabel("Username"), gbc);
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 6, 0);
-        JLabel userLabel = new JLabel("Username");
-        userLabel.setForeground(AppColors.TEXT_PRIMARY);
-        userLabel.setFont(userLabel.getFont().deriveFont(Font.BOLD, 13f));
-        card.add(userLabel, gbc);
+        UIStyles.inputField(userField);
+        formCard.add(userField, gbc);
 
+        // Password
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 12, 0);
-        userField.setColumns(18);
-        UIStyles.styleTextField(userField);
-        card.add(userField, gbc);
+        formCard.add(new JLabel("Password"), gbc);
+        gbc.gridy++;
+        UIStyles.inputField(passField);
+        formCard.add(passField, gbc);
 
+        // Button
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 6, 0);
-        JLabel passLabel = new JLabel("Password");
-        passLabel.setForeground(AppColors.TEXT_PRIMARY);
-        passLabel.setFont(passLabel.getFont().deriveFont(Font.BOLD, 13f));
-        card.add(passLabel, gbc);
+        gbc.insets = new Insets(20, 0, 10, 0);
+        JButton loginBtn = new JButton("Sign In");
+        UIStyles.primaryButton(loginBtn);
+        formCard.add(loginBtn, gbc);
 
+        // Message
         gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 12, 0);
-        passField.setColumns(18);
-        UIStyles.styleTextField(passField);
-        card.add(passField, gbc);
-
-        gbc.gridy++;
-        gbc.insets = new Insets(4, 0, 0, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
         messageLabel.setForeground(AppColors.ERROR);
-        messageLabel.setVisible(false);
-        card.add(messageLabel, gbc);
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        formCard.add(messageLabel, gbc);
 
-        GridBagConstraints wrapperGbc = new GridBagConstraints();
-        wrapperGbc.gridx = 0;
-        wrapperGbc.gridy = 0;
-        wrapperGbc.insets = new Insets(0, 0, 0, 0);
-        wrapperGbc.anchor = GridBagConstraints.CENTER;
-        wrapper.add(card, wrapperGbc);
-        return wrapper;
-    }
+        rightPanel.add(formCard);
+        add(rightPanel);
+        
+        // Add Key Listener for "Enter" key
+        getRootPane().setDefaultButton(loginBtn);
 
-    private ActionListener doLogin() {
-        return e -> {
-            String username = userField.getText().trim();
-            String password = new String(passField.getPassword());
+        // Login Logic
+        loginBtn.addActionListener(e -> {
+            String user = userField.getText().trim();
+            String pass = new String(passField.getPassword());
 
-            if (username.isEmpty() || password.isEmpty()) {
-                showInlineMessage("Please enter both username and password.", false);
-                return;
-            }
-
-            AuthService.AuthResult result = AuthService.authenticate(username, password, DatabaseConfig.getAuthDataSource());
-            showInlineMessage(result.message, result.success);
+            AuthService.AuthResult result = AuthService.authenticate(user, pass, DatabaseConfig.getAuthDataSource());
 
             if (result.success) {
-                this.setVisible(false);
-                switch (result.role.toUpperCase()) {
-                    case "ADMIN":
-                        SwingUtilities.invokeLater(() -> new AdminDashboard(result.userId).setVisible(true));
-                        break;
-                    case "INSTRUCTOR":
-                        SwingUtilities.invokeLater(() -> new InstructorDashboard(result.userId).setVisible(true));
-                        break;
-                    case "STUDENT":
-                        SwingUtilities.invokeLater(() -> new StudentDashboard(result.userId).setVisible(true));
-                        break;
-                    default:
-                        JOptionPane.showMessageDialog(this, "Unknown role: " + result.role);
-                        this.setVisible(true);
+                this.dispose();
+                // Open specific dashboard based on role
+                switch (result.role) {
+                    case "ADMIN": new AdminDashboard(result.userId).setVisible(true); break;
+                    case "INSTRUCTOR": new InstructorDashboard(result.userId).setVisible(true); break;
+                    case "STUDENT": new StudentDashboard(result.userId).setVisible(true); break;
                 }
             } else {
-                JOptionPane.showMessageDialog(this, result.message, "Login Failed", JOptionPane.WARNING_MESSAGE);
+                messageLabel.setText(result.message);
             }
-        };
-    }
-
-    private void showInlineMessage(String message, boolean success) {
-        messageLabel.setText(message);
-        messageLabel.setForeground(success ? AppColors.SUCCESS : AppColors.ERROR);
-        messageLabel.setVisible(true);
+        });
     }
 }

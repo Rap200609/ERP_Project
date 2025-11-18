@@ -1,106 +1,72 @@
 package edu.univ.erp.ui.theme;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.text.JTextComponent;
+import java.awt.*;
 
-/**
- * Helper methods for applying a consistent visual style across the Swing UI.
- */
-public final class UIStyles {
+public class UIStyles {
 
-    private UIStyles() {
-        // utility
-    }
-
-    public static void applyFrameBackground(JFrame frame) {
+    // Apply to the main JFrame
+    public static void initFrame(JFrame frame) {
         frame.getContentPane().setBackground(AppColors.BACKGROUND);
+        frame.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     }
 
-    public static void stylePrimaryButton(AbstractButton button) {
-        button.putClientProperty("JButton.buttonType", "roundRect");
-        button.putClientProperty("JComponent.minimumWidth", 140);
-        button.setBackground(AppColors.PRIMARY);
-        button.setForeground(Color.WHITE);
-        button.setBorder(new EmptyBorder(10, 18, 10, 18));
-        button.setFocusPainted(false);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    // Style a primary action button (Blue, Rounded)
+    public static void primaryButton(JButton btn) {
+        btn.setBackground(AppColors.PRIMARY);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFocusPainted(false);
+        btn.setBorder(new EmptyBorder(10, 20, 10, 20));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // FlatLaf specific: Rounded corners
+        btn.putClientProperty("JButton.buttonType", "roundRect"); 
     }
 
-    public static void styleSidebarButton(AbstractButton button) {
-        stylePrimaryButton(button);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+    // Style a sidebar/secondary button
+    public static void sidebarButton(JButton btn) {
+        btn.setBackground(AppColors.CARD_BG);
+        btn.setForeground(AppColors.TEXT_DARK);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setBorder(new EmptyBorder(12, 15, 12, 15));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.putClientProperty("JButton.buttonType", "roundRect");
     }
 
-    public static void styleSecondaryButton(AbstractButton button) {
-        button.putClientProperty("JButton.buttonType", "roundRect");
-        button.setBackground(AppColors.SIDEBAR);
-        button.setForeground(AppColors.TEXT_PRIMARY);
-        button.setBorder(new EmptyBorder(8, 16, 8, 16));
-        button.setFocusPainted(false);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    }
-
-    public static JPanel createCardPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(new CompoundBorder(
-                new LineBorder(new Color(224, 230, 241), 1, true),
-                new EmptyBorder(20, 24, 20, 24)));
-        panel.putClientProperty("JComponent.roundRect", true);
-        panel.putClientProperty("JComponent.arc", 18);
-        return panel;
-    }
-
-    public static void styleSidebarPanel(JPanel panel) {
-        panel.setBackground(AppColors.SIDEBAR);
-        panel.setBorder(new EmptyBorder(24, 20, 24, 20));
-        panel.setAlignmentY(Component.TOP_ALIGNMENT);
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.putClientProperty("JComponent.roundRect", true);
-        panel.putClientProperty("JComponent.arc", 18);
-        panel.setMinimumSize(new Dimension(220, 0));
-        panel.setPreferredSize(new Dimension(220, 0));
-        panel.setMaximumSize(new Dimension(220, Integer.MAX_VALUE));
-        panel.setOpaque(true);
-    }
-
-    public static void applyContentBackground(JComponent component) {
-        component.setBackground(AppColors.BACKGROUND);
-        component.setOpaque(true);
-    }
-
-    public static void styleTextField(JTextComponent field) {
+    // Style a text field
+    public static void inputField(JTextField field) {
         field.putClientProperty("JComponent.roundRect", true);
-        field.putClientProperty("JComponent.arc", 14);
+        field.putClientProperty("JComponent.outline", AppColors.PRIMARY);
         field.setBorder(new CompoundBorder(
-                new LineBorder(new Color(210, 218, 232), 1, true),
-                new EmptyBorder(10, 14, 10, 14)));
-        field.setOpaque(true);
-        field.setEnabled(true);
-        field.setEditable(true);
-        field.setFocusable(true);
-        field.setPreferredSize(new Dimension(220, 36));
-        field.setBackground(Color.WHITE);
-        field.setForeground(AppColors.TEXT_PRIMARY);
-        field.setCaretColor(AppColors.PRIMARY_DARK);
+                new LineBorder(AppColors.BORDER, 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     }
 
-    public static void softenScrollPane(JComponent scrollPane) {
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+    // Create a Title Label
+    public static JLabel headerLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lbl.setForeground(AppColors.PRIMARY);
+        return lbl;
+    }
+
+    // Style a Table
+    public static void styleTable(JTable table) {
+        table.setRowHeight(30);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(AppColors.BACKGROUND);
+        table.getTableHeader().setForeground(AppColors.TEXT_DARK);
+        table.setSelectionBackground(AppColors.PRIMARY);
+        table.setSelectionForeground(Color.WHITE);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
     }
 }
-
-
