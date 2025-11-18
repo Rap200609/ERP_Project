@@ -1,142 +1,158 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.admin.AdminSectionApi;
+import edu.univ.erp.api.common.ApiResponse;
+import edu.univ.erp.domain.InstructorOption;
+import edu.univ.erp.domain.SectionAssignment;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 public class AssignInstructorPanel extends JPanel {
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private ArrayList<Integer> sectionIds = new ArrayList<>();
-    private ArrayList<Integer> instructorIds = new ArrayList<>();
-    private ArrayList<String> instructorNames = new ArrayList<>();
+    private final AdminSectionApi sectionApi = new AdminSectionApi();
+    private final JTable table;
+    private final DefaultTableModel tableModel;
+    private List<InstructorOption> instructorOptions = List.of();
 
     public AssignInstructorPanel() {
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
-        String[] cols = {"Section ID", "Section", "Course", "Semester", "Year", "Current Instructor", "Update"};
-        tableModel = new DefaultTableModel(cols, 0) { public boolean isCellEditable(int row, int col) { return col == 6; }};
-        table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane, BorderLayout.CENTER);
-
-        // Live updates for instructors/sections
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        String[] cols = {
+                "Section ID",
+                "Section",
+                "Course",
+                "Semester",
+                "Year",
+                "Instructor",
+                "Update"
+        };
+        tableModel = new DefaultTableModel(cols, 0) {
             @Override
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                loadAll();
+            public boolean isCellEditable(int row, int column) {
+                return column == 6;
             }
-        });
-        loadAll();
-
-        // Handle Update button
+        };
+        table = new JTable(tableModel);
+        UITheme.styleTable(table);
         table.getColumn("Update").setCellRenderer(new ButtonRenderer());
         table.getColumn("Update").setCellEditor(new ButtonEditor(new JCheckBox()));
-    }
+        JScrollPane scrollPane = new JScrollPane(table);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
-    private void loadAll() {
-        loadInstructors();
-        loadSections();
-    }
-
-    private void loadInstructors() {
-        instructorNames.clear();
-        instructorIds.clear();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT user_id, employee_id, department FROM instructors")) {
-            while (rs.next()) {
-                instructorIds.add(rs.getInt("user_id"));
-                instructorNames.add(rs.getString("employee_id") + " (" + rs.getString("department") + ")");
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                loadData();
             }
-        } catch (Exception ex) { }
+        });
+
+        loadData();
     }
 
-    private void loadSections() {
+    private void loadData() {
+        instructorOptions = sectionApi.listInstructorOptions();
         tableModel.setRowCount(0);
-        sectionIds.clear();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(
-                     "SELECT s.section_id, s.section_code, c.code, c.title, s.semester, s.year, s.instructor_id FROM sections s JOIN courses c ON s.course_id=c.course_id")) {
-            while (rs.next()) {
-                sectionIds.add(rs.getInt("section_id"));
-                String courseName = rs.getString("code") + " - " + rs.getString("title");
-                String sectionCode = rs.getString("section_code");
-                String currentInstructor = getInstructorNameById(rs.getInt("instructor_id"));
-                tableModel.addRow(new Object[] {
-                        rs.getInt("section_id"),
-                        sectionCode,
-                        courseName,
-                        rs.getString("semester"),
-                        rs.getInt("year"),
-                        currentInstructor,
-                        "Update"
-                });
-            }
-        } catch (Exception ex) { }
-    }
-
-    private String getInstructorNameById(int id) {
-        if (id == 0) return "(none)";
-        int idx = instructorIds.indexOf(id);
-        if (idx >= 0) return instructorNames.get(idx);
-        return "(none)";
-    }
-
-    // Update logic: show instructor selection dialog, update DB, reload table
-    public void assignInstructorToSection(int row) {
-        int sectionId = (int) tableModel.getValueAt(row, 0);
-        String oldInstructor = (String) tableModel.getValueAt(row, 5);
-
-        JComboBox<String> combo = new JComboBox<>(instructorNames.toArray(new String[0]));
-        int option = JOptionPane.showConfirmDialog(this, combo,
-                "Select Instructor for Section", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (option != JOptionPane.OK_OPTION) return;
-
-        int idx = combo.getSelectedIndex();
-        if (idx < 0 || idx >= instructorIds.size()) return;
-        int instructorId = instructorIds.get(idx);
-
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement("UPDATE sections SET instructor_id=? WHERE section_id=?")) {
-            stmt.setInt(1, instructorId);
-            stmt.setInt(2, sectionId);
-            stmt.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Instructor updated!");
-            loadSections();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Failed: " + ex.getMessage());
+        for (SectionAssignment assignment : sectionApi.listSectionAssignments()) {
+            tableModel.addRow(new Object[]{
+                    assignment.getSectionId(),
+                    assignment.getSectionCode(),
+                    assignment.getCourseDisplay(),
+                    assignment.getSemester(),
+                    assignment.getYear(),
+                    resolveInstructorName(assignment.getInstructorId()),
+                    "Update"
+            });
         }
     }
 
-    // Renderer and Editor for "Update" button
+    private String resolveInstructorName(Integer instructorId) {
+        if (instructorId == null) {
+            return "(none)";
+        }
+        return instructorOptions.stream()
+                .filter(option -> option.getInstructorId() == instructorId.intValue())
+                .map(InstructorOption::getDisplayName)
+                .findFirst()
+                .orElse("(none)");
+    }
+
+    private void assignInstructor(int row) {
+        int sectionId = (int) tableModel.getValueAt(row, 0);
+        JComboBox<String> combo = new JComboBox<>(
+                instructorOptions.stream()
+                        .map(InstructorOption::getDisplayName)
+                        .toArray(String[]::new));
+        combo.insertItemAt("(Clear Assignment)", 0);
+        combo.setSelectedIndex(0);
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                combo,
+                "Select Instructor",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        if (option != JOptionPane.OK_OPTION) {
+            return;
+        }
+        Integer instructorId = null;
+        int selectedIndex = combo.getSelectedIndex();
+        if (selectedIndex > 0) {
+            instructorId = instructorOptions.get(selectedIndex - 1).getInstructorId();
+        }
+        ApiResponse response = sectionApi.assignInstructor(sectionId, instructorId);
+        if (!response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage());
+        }
+        loadData();
+    }
+
     private class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
-        public ButtonRenderer() { setText("Update"); }
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) { return this; }
+        ButtonRenderer() {
+            super("Update");
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column) {
+            return this;
+        }
     }
 
     private class ButtonEditor extends DefaultCellEditor {
-        private JButton button;
+        private final JButton button;
         private int row;
 
-        public ButtonEditor(JCheckBox checkBox) {
+        ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
             button = new JButton("Update");
             button.addActionListener(e -> {
-                assignInstructorToSection(row);
+                assignInstructor(row);
                 fireEditingStopped();
             });
         }
 
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        public Component getTableCellEditorComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                int row,
+                int column) {
             this.row = row;
             return button;
         }
+
         @Override
-        public Object getCellEditorValue() { return "Update"; }
+        public Object getCellEditorValue() {
+            return "Update";
+        }
     }
 }
+

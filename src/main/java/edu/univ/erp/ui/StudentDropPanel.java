@@ -1,49 +1,60 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.common.ApiResponse;
+import edu.univ.erp.api.student.StudentApi;
+import edu.univ.erp.domain.EnrolledSection;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StudentDropPanel extends JPanel {
-    private int studentId;
-    private JTable enrolledTable;
-    private DefaultTableModel enrolledModel;
-    private JButton dropBtn;
+    private final int studentId;
+    private final StudentApi studentApi;
+    private final DefaultTableModel enrolledModel;
 
     public StudentDropPanel(int studentId) {
-        this.studentId = studentId;
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this(studentId, new StudentApi());
+    }
 
-        String[] columns = {"Section Code", "Course", "Instructor", "Drop"};
-        enrolledModel = new DefaultTableModel(columns, 0) {
+    public StudentDropPanel(int studentId, StudentApi studentApi) {
+        this.studentId = studentId;
+        this.studentApi = studentApi;
+        setBackground(UITheme.BG_MAIN);
+        setLayout(new BorderLayout());
+
+        enrolledModel = new DefaultTableModel(new String[]{"Section Code", "Course", "Instructor", "Drop"}, 0) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 3) return Boolean.class;
-                return String.class;
+                return columnIndex == 3 ? Boolean.class : String.class;
             }
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 3; // Only checkbox column is editable
+                return column == 3;
             }
         };
 
-        enrolledTable = new JTable(enrolledModel);
-        enrolledTable.setRowHeight(25);
-        add(new JScrollPane(enrolledTable), BorderLayout.CENTER);
+        JTable enrolledTable = new JTable(enrolledModel);
+        UITheme.styleTable(enrolledTable);
+        JScrollPane scrollPane = new JScrollPane(enrolledTable);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        dropBtn = new JButton("Drop Selected Sections");
+        bottomPanel.setBackground(UITheme.BG_MAIN);
+        bottomPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        JButton dropBtn = new JButton("Drop Selected Sections");
+        UITheme.stylePrimaryButton(dropBtn);
         dropBtn.addActionListener(e -> dropSelectedSections());
         bottomPanel.add(dropBtn);
         add(bottomPanel, BorderLayout.SOUTH);
 
         loadEnrolledSections();
 
-        // Real-time refresh when panel becomes visible
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 loadEnrolledSections();
@@ -53,78 +64,29 @@ public class StudentDropPanel extends JPanel {
 
     private void loadEnrolledSections() {
         enrolledModel.setRowCount(0);
-
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT s.section_code, c.title, u.username AS instructor " +
-                             "FROM enrollments e " +
-                             "JOIN sections s ON e.section_id = s.section_id " +
-                             "JOIN courses c ON s.course_id = c.course_id " +
-                             "JOIN instructors i ON s.instructor_id = i.user_id " +
-                             "JOIN erp_auth.users_auth u ON i.user_id = u.user_id " +
-                             "WHERE e.student_id = ? AND e.status = 'ENROLLED' " +
-                             "ORDER BY c.title")) {
-
-            stmt.setInt(1, studentId);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                enrolledModel.addRow(new Object[]{
-                        rs.getString("section_code"),
-                        rs.getString("title"),
-                        rs.getString("instructor"),
-                        false // Checkbox unchecked by default
-                });
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading enrolled sections: " + ex.getMessage());
-            ex.printStackTrace();
+        List<EnrolledSection> sections = studentApi.loadEnrolledSections(studentId);
+        for (EnrolledSection section : sections) {
+            enrolledModel.addRow(new Object[]{
+                    section.getSectionCode(),
+                    section.getCourseTitle(),
+                    section.getInstructorName(),
+                    false
+            });
         }
     }
 
     private void dropSelectedSections() {
-        // CHECK MAINTENANCE MODE FIRST
-        if (edu.univ.erp.util.MaintenanceManager.isMaintenanceModeOn()) {
-            JOptionPane.showMessageDialog(this,
-                    "Drop section is currently disabled.\nMaintenance mode is active.",
-                    "Maintenance Mode",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int droppedCount = 0;
-
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection()) {
-            for (int i = 0; i < enrolledModel.getRowCount(); i++) {
-                Boolean selected = (Boolean) enrolledModel.getValueAt(i, 3);
-                if (selected != null && selected) {
-                    String sectionCode = (String) enrolledModel.getValueAt(i, 0);
-
-                    PreparedStatement stmt = conn.prepareStatement(
-                            "DELETE e FROM enrollments e " +
-                                    "JOIN sections s ON e.section_id = s.section_id " +
-                                    "WHERE e.student_id = ? AND s.section_code = ?");
-                    stmt.setInt(1, studentId);
-                    stmt.setString(2, sectionCode);
-                    droppedCount += stmt.executeUpdate();
-                    stmt.close();
-                }
+        List<String> sectionCodes = new ArrayList<>();
+        for (int i = 0; i < enrolledModel.getRowCount(); i++) {
+            Boolean selected = (Boolean) enrolledModel.getValueAt(i, 3);
+            if (Boolean.TRUE.equals(selected)) {
+                sectionCodes.add((String) enrolledModel.getValueAt(i, 0));
             }
-
-            if (droppedCount > 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Successfully dropped " + droppedCount + " section(s).",
-                        "Drop Successful",
-                        JOptionPane.INFORMATION_MESSAGE);
-                loadEnrolledSections(); // Refresh
-            } else {
-                JOptionPane.showMessageDialog(this, "No sections were selected to drop.");
-            }
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error dropping sections: " + ex.getMessage(),
-                    "Drop Error", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         }
+        ApiResponse response = studentApi.dropSections(studentId, sectionCodes);
+        JOptionPane.showMessageDialog(this, response.getMessage(),
+                response.isSuccess() ? "Drop Successful" : "Drop Error",
+                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+        loadEnrolledSections();
     }
 }

@@ -57,7 +57,7 @@ edu.univ.erp/
 └── App.java     - Main entry point
 ```
 
-**Architecture Note**: The system uses a layered architecture with direct data access. UI panels communicate directly with DatabaseConfig for all data operations. This design was chosen for its simplicity and suitability to the project scope. For detailed architectural rationale, see `ARCHITECTURE_DECISION.md`.
+**Architecture Note**: The system follows a layered architecture: UI → API → Service → Data. UI panels never access the database directly. All UI actions call the API layer, which delegates to Services for business logic, and Repositories handle data access via `DatabaseConfig`. This enforces separation of concerns, improves testability, and matches the project specification. See `ARCHITECTURE_DECISION.md` for the full rationale.
 
 ### 2.3 Technology Stack
 

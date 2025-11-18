@@ -26,8 +26,18 @@ public class StudentDashboard extends JFrame {
         // Left sidebar with navigation buttons
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(200, 0));
-        sidebar.setBackground(new Color(240, 240, 240));
+        sidebar.setPreferredSize(new Dimension(240, 0));
+        sidebar.setBackground(UITheme.BG_SIDEBAR);
+        sidebar.setBorder(new javax.swing.border.EmptyBorder(20, 0, 20, 0));
+
+        // Sidebar header
+        JLabel sidebarTitle = new JLabel("Student Portal");
+        sidebarTitle.setFont(UITheme.FONT_SUBHEADING);
+        sidebarTitle.setForeground(UITheme.TEXT_WHITE);
+        sidebarTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebarTitle.setBorder(new javax.swing.border.EmptyBorder(0, 0, 20, 0));
+        sidebar.add(sidebarTitle);
+        sidebar.add(UITheme.createVerticalSpacer(10));
 
         String[] menuItems = {
             "Course Catalog",
@@ -43,14 +53,15 @@ public class StudentDashboard extends JFrame {
         for (String item : menuItems) {
             JButton btn = createMenuButton(item);
             sidebar.add(btn);
-            sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+            sidebar.add(UITheme.createVerticalSpacer(3));
         }
 
+        sidebar.add(Box.createVerticalGlue());
         add(sidebar, BorderLayout.WEST);
 
         // Content area
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        UITheme.styleContentPanel(contentPanel);
         add(contentPanel, BorderLayout.CENTER);
 
         // Show course catalog by default
@@ -67,9 +78,7 @@ public class StudentDashboard extends JFrame {
 
     private JButton createMenuButton(String text) {
         JButton btn = new JButton(text);
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(180, 40));
-        btn.setPreferredSize(new Dimension(180, 40));
+        UITheme.styleSidebarButton(btn);
         btn.addActionListener(e -> handleMenuClick(text));
         return btn;
     }

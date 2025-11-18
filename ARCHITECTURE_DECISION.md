@@ -2,141 +2,219 @@
 
 ## Overview
 
-This document explains the architectural decisions made for the University ERP System.
+This document explains the architectural decisions made for the University ERP System. The system has been refactored to follow a **layered architecture pattern** as specified in the project requirements.
 
 ## Current Architecture
 
 ```
-ui/ → data/ (DatabaseConfig)
+UI → API → Service → Data
 ```
 
-The system uses a **layered architecture with direct data access**:
-- **UI Layer**: Swing panels and windows (`edu.univ.erp.ui`)
-- **Data Layer**: Database configuration and connection pooling (`edu.univ.erp.data`)
-- **Auth Layer**: Authentication service (`edu.univ.erp.auth`)
-- **Utility Layer**: Helper classes (`edu.univ.erp.util`)
+The system uses a **four-layer architecture**:
+
+- **UI Layer** (`edu.univ.erp.ui`): Swing panels and windows - handles user interaction and presentation
+- **API Layer** (`edu.univ.erp.api`): Facade for UI - handles request/response mapping and validation
+- **Service Layer** (`edu.univ.erp.service`): Business logic - orchestrates repository calls and enforces business rules
+- **Data Layer** (`edu.univ.erp.data`): Database access - repositories and database configuration
+
+## Architecture Layers
+
+### 1. UI Layer (`edu.univ.erp.ui`)
+- **Purpose**: User interface components (Swing panels)
+- **Responsibilities**:
+  - Display data to users
+  - Capture user input
+  - Handle UI events
+  - Call API layer methods
+- **Key Components**: 22+ UI panels for students, instructors, and admins
+
+### 2. API Layer (`edu.univ.erp.api`)
+- **Purpose**: Facade between UI and business logic
+- **Responsibilities**:
+  - Provide clean interface for UI
+  - Map between UI objects and domain models
+  - Handle API-level validation
+  - Return standardized `ApiResponse` objects
+- **Packages**:
+  - `api.admin`: Admin operations (users, courses, sections, maintenance, backup)
+  - `api.student`: Student operations (catalog, registration, grades, transcript)
+  - `api.instructor`: Instructor operations (sections, grade entry, stats, export)
+  - `api.catalog`: Course catalog operations
+  - `api.auth`: Authentication operations (password change)
+  - `api.common`: Shared API utilities (`ApiResponse`)
+
+### 3. Service Layer (`edu.univ.erp.service`)
+- **Purpose**: Business logic and orchestration
+- **Responsibilities**:
+  - Implement business rules
+  - Coordinate multiple repository calls
+  - Handle transactions (where needed)
+  - Validate business constraints
+- **Packages**:
+  - `service.admin`: Admin business logic
+  - `service.student`: Student business logic
+  - `service.instructor`: Instructor business logic
+  - `service.catalog`: Catalog business logic
+  - `service.auth`: Authentication business logic
+
+### 4. Data Layer (`edu.univ.erp.data`)
+- **Purpose**: Database access and persistence
+- **Responsibilities**:
+  - Execute SQL queries
+  - Map database results to domain models
+  - Manage database connections
+  - Handle data access errors
+- **Components**:
+  - `DatabaseConfig`: Connection pooling (HikariCP) for auth and main databases
+  - `repository.*`: Repository classes for each entity (User, Student, Course, Section, Enrollment, Grade, etc.)
+
+### 5. Domain Layer (`edu.univ.erp.domain`)
+- **Purpose**: Domain models (DTOs)
+- **Responsibilities**:
+  - Represent business entities
+  - Transfer data between layers
+  - Provide domain-specific behavior
+- **Key Models**: `UserAccount`, `StudentProfile`, `InstructorProfile`, `CourseDetail`, `SectionDetail`, `GradeComponent`, `TranscriptRow`, etc.
 
 ## Design Rationale
 
 ### Why This Architecture Was Chosen
 
-1. **Project Size & Complexity**
-   - This is a medium-sized project with ~22 UI panels
-   - The business logic is straightforward (CRUD operations)
-   - Adding extra abstraction layers would increase complexity without proportional benefit
+1. **Project Requirements**
+   - The project specification explicitly requires a `UI → API → Service → Data` architecture
+   - This pattern provides clear separation of concerns
 
-2. **Direct Data Access Benefits**
-   - **Simplicity**: Fewer layers mean easier debugging and maintenance
-   - **Performance**: Direct SQL queries are more efficient
-   - **Clarity**: Easy to trace data flow from UI → Database
-   - **Development Speed**: Faster implementation for prototyping
+2. **Maintainability**
+   - Each layer has a single, well-defined responsibility
+   - Changes in one layer don't cascade to others
+   - Easy to locate and fix bugs
 
-3. **Separation of Concerns (Still Maintained)**
-   - **UI panels** handle user interface and validation
-   - **DatabaseConfig** manages connections and pooling
-   - **AuthService** encapsulates authentication logic
-   - **MaintenanceManager** handles system-wide settings
+3. **Testability**
+   - Each layer can be tested independently
+   - Service layer can be tested with mock repositories
+   - API layer can be tested with mock services
 
-### What This Architecture Provides
+4. **Scalability**
+   - Easy to add new features by extending existing layers
+   - Business logic changes don't affect UI
+   - Database changes are isolated to data layer
 
-✅ **Security**: Two-database architecture (auth + main)  
-✅ **Data Integrity**: Foreign keys, unique constraints  
-✅ **Connection Management**: HikariCP connection pooling  
-✅ **Error Handling**: Comprehensive try-catch blocks  
-✅ **Code Reusability**: Shared DatabaseConfig across all UI panels  
-✅ **Maintainability**: Clear package structure  
+5. **Code Reusability**
+   - Services can be reused across different APIs
+   - Repositories provide consistent data access patterns
+   - Domain models are shared across layers
 
-### Comparison to Suggested Architecture
+## Layer Communication
 
-**Suggested (API/Service/Data)**:
-```
-ui → api → service → data
-```
+### Data Flow Example: Student Registration
 
-**Benefits of Suggested:**
-- More layers = better for large, complex systems
-- Business logic separated from UI
-- Easier to swap database implementations
-- Better for multi-developer teams
+1. **UI Layer** (`StudentRegisterPanel`):
+   - User clicks "Register" button
+   - Calls `StudentApi.registerSection(studentId, sectionCode)`
 
-**Trade-offs:**
-- More boilerplate code for simple operations
-- Additional complexity for straightforward CRUD
-- More files to navigate and maintain
+2. **API Layer** (`StudentApi`):
+   - Validates input
+   - Checks maintenance mode
+   - Calls `EnrollmentService.registerStudent(studentId, sectionCode)`
+   - Returns `ApiResponse` to UI
 
-## Alternative Implementations Considered
+3. **Service Layer** (`EnrollmentService`):
+   - Checks if student already enrolled
+   - Checks section capacity
+   - Calls `EnrollmentRepository.enrollStudent(studentId, sectionId)`
+   - Handles business logic exceptions
 
-### 1. Full MVC + Service Layer
-**Decision**: Not implemented  
-**Reason**: Would triple the codebase for minimal functional benefit in this project size
+4. **Data Layer** (`EnrollmentRepository`):
+   - Executes SQL: `INSERT INTO enrollments ...`
+   - Returns success/failure
 
-### 2. Repository Pattern
-**Decision**: Not implemented  
-**Reason**: Would add abstraction without benefits given direct SQL usage
-
-### 3. DAO Pattern
-**Decision**: Partially implemented  
-**Current**: `DatabaseConfig` serves as a simplified DAO  
-**Reason**: Provides connection management without excessive abstraction
-
-## Benefits of Current Approach
-
-1. **Practical for Project Scope**
-   - All requirements implemented successfully
-   - No unnecessary complexity
-   - Easy to understand and modify
-
-2. **Proven Design Pattern**
-   - Common in medium-sized desktop applications
-   - Similar to successful Swing projects
-   - Industry standard for similar projects
-
-3. **Clear Responsibilities**
-   - Each package has a distinct role
-   - No circular dependencies
-   - Straightforward data flow
-
-## Code Organization
-
-### Package Structure
+## Package Structure
 
 ```
 edu.univ.erp/
-├── ui/                 # User Interface (22 panels)
-│   ├── Student*        # Student features
-│   ├── Instructor*     # Instructor features
-│   ├── Admin*          # Admin features
-│   └── Common          # Shared UI components
-├── auth/               # Authentication (AuthService)
-├── data/               # Database (DatabaseConfig)
-├── util/               # Utilities (MaintenanceManager)
-└── App.java           # Entry point
+├── ui/                    # UI Layer (22+ panels)
+│   ├── Student*           # Student UI panels
+│   ├── Instructor*        # Instructor UI panels
+│   ├── Admin*             # Admin UI panels
+│   └── Common             # Shared UI components
+├── api/                   # API Layer
+│   ├── admin/             # Admin APIs
+│   ├── student/           # Student APIs
+│   ├── instructor/        # Instructor APIs
+│   ├── catalog/           # Catalog APIs
+│   ├── auth/              # Auth APIs
+│   └── common/            # Shared API utilities
+├── service/               # Service Layer
+│   ├── admin/             # Admin services
+│   ├── student/           # Student services
+│   ├── instructor/        # Instructor services
+│   ├── catalog/           # Catalog services
+│   └── auth/              # Auth services
+├── data/                  # Data Layer
+│   ├── DatabaseConfig     # Connection pooling
+│   └── repository/        # Repository classes
+├── domain/                # Domain Models (DTOs)
+│   ├── UserAccount
+│   ├── StudentProfile
+│   ├── CourseDetail
+│   └── ... (18+ models)
+├── auth/                  # Authentication
+│   └── AuthService        # Login authentication
+├── util/                  # Utilities
+│   └── MaintenanceManager # Maintenance mode checker
+└── App.java              # Entry point
 ```
 
-### Database Design
+## Database Design
 
 **Two-Database Architecture:**
-- `erp_auth`: User credentials only (bcrypt hashes)
-- `erp_main`: All application data (students, courses, grades)
+- `erp_auth`: User credentials only (bcrypt password hashes, account lockout)
+- `erp_main`: All application data (students, courses, sections, enrollments, grades)
 
 **Connection Pooling:**
 - HikariCP for efficient connection management
-- Separate pools for auth and main databases
+- Separate connection pools for auth and main databases
+- Configured in `DatabaseConfig`
+
+## Key Features
+
+✅ **Layered Architecture**: Clear separation between UI, API, Service, and Data layers  
+✅ **Domain Models**: DTOs for all business entities  
+✅ **Repository Pattern**: Consistent data access across all entities  
+✅ **Service Layer**: Business logic separated from data access  
+✅ **API Facade**: Clean interface for UI layer  
+✅ **Error Handling**: Standardized `ApiResponse` for consistent error handling  
+✅ **Security**: Two-database architecture, bcrypt password hashing, account lockout  
+✅ **Maintenance Mode**: System-wide maintenance toggle  
+✅ **Backup/Restore**: Database backup and restore functionality  
+
+## Benefits of This Architecture
+
+1. **Separation of Concerns**: Each layer has a single responsibility
+2. **Maintainability**: Easy to locate and modify code
+3. **Testability**: Layers can be tested independently
+4. **Scalability**: Easy to add new features
+5. **Code Reusability**: Services and repositories can be reused
+6. **Type Safety**: Strong typing with domain models
+7. **Error Handling**: Consistent error responses via `ApiResponse`
+
+## Migration Notes
+
+The system was refactored from a direct UI-to-database architecture to the current layered architecture. All UI panels now interact exclusively with the API layer, and no direct JDBC calls remain in the UI layer.
 
 ## Conclusion
 
-This architecture was chosen because it:
+This layered architecture successfully implements all required features while maintaining:
+- Clear separation of concerns
+- Easy maintainability
+- Strong testability
+- Scalable design
+- Code reusability
 
-1. **Fits the project scope**: Not over-engineered for requirements
-2. **Maintains quality**: Security, integrity, and proper separation exist
-3. **Supports future growth**: Easy to refactor if needed
-4. **Follows Java best practices**: Proper use of packages, interfaces, and patterns
-
-The current architecture successfully implements all required features while maintaining code clarity, security, and performance. While a more layered approach could be used, the added complexity would not provide proportional benefit for this project's requirements.
+The architecture follows industry best practices and provides a solid foundation for future enhancements.
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: After project completion  
-**Decision Status**: Implemented and validated
-
+**Document Version**: 2.0  
+**Last Updated**: After architectural refactoring  
+**Architecture Status**: Implemented and validated

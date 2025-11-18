@@ -1,75 +1,89 @@
 package edu.univ.erp.ui;
 
+import edu.univ.erp.api.instructor.InstructorApi;
+import edu.univ.erp.domain.ComponentStats;
+import edu.univ.erp.domain.SectionDetail;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InstructorStatsPanel extends JPanel {
-    private JComboBox<String> sectionBox;
-    private JTextArea statsArea;
-    private int instructorId;
+    private final InstructorApi instructorApi = new InstructorApi();
+    private final JComboBox<String> sectionBox;
+    private final JTextArea statsArea;
+    private final int instructorId;
+    private final Map<String, Integer> sectionIdMap = new HashMap<>();
 
     public InstructorStatsPanel(int instructorId) {
         this.instructorId = instructorId;
+        setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
 
         sectionBox = new JComboBox<>();
+        UITheme.styleComboBox(sectionBox);
         statsArea = new JTextArea(10, 60);
         statsArea.setEditable(false);
+        statsArea.setFont(UITheme.FONT_BODY);
+        statsArea.setBackground(UITheme.BG_PANEL);
+        statsArea.setBorder(UITheme.BORDER_FIELD);
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Section:"));
+        topPanel.setBackground(UITheme.BG_MAIN);
+        topPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        JLabel sectionLabel = new JLabel("Section:");
+        UITheme.styleLabel(sectionLabel, true);
+        topPanel.add(sectionLabel);
         topPanel.add(sectionBox);
         JButton refreshBtn = new JButton("Show Stats");
+        UITheme.stylePrimaryButton(refreshBtn);
         topPanel.add(refreshBtn);
 
         add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(statsArea), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(statsArea);
+        UITheme.styleScrollPane(scrollPane);
+        add(scrollPane, BorderLayout.CENTER);
 
         loadSections();
 
         refreshBtn.addActionListener(e -> showStats());
 
-        if (sectionBox.getItemCount() > 0) showStats();
+        if (sectionBox.getItemCount() > 0) {
+            showStats();
+        }
     }
 
     private void loadSections() {
         sectionBox.removeAllItems();
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT section_id, section_code FROM sections WHERE instructor_id=?")) {
-            stmt.setInt(1, instructorId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                sectionBox.addItem(rs.getInt(1) + ":" + rs.getString(2));
-            }
-        } catch (Exception ex) { }
+        sectionIdMap.clear();
+        for (SectionDetail section : instructorApi.listSections(instructorId)) {
+            String display = section.getSectionId() + ":" + section.getSectionCode();
+            sectionIdMap.put(display, section.getSectionId());
+            sectionBox.addItem(display);
+        }
     }
 
     private void showStats() {
         statsArea.setText("");
-        if (sectionBox.getSelectedItem() == null) return;
-        String secStr = (String) sectionBox.getSelectedItem();
-        int sectionId = Integer.parseInt(secStr.split(":")[0].trim());
+        if (sectionBox.getSelectedItem() == null) {
+            return;
+        }
+        String selected = (String) sectionBox.getSelectedItem();
+        Integer sectionId = sectionIdMap.get(selected);
+        if (sectionId == null) {
+            statsArea.append("Error: Invalid section selection");
+            return;
+        }
 
-        try (Connection conn = edu.univ.erp.data.DatabaseConfig.getMainDataSource().getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(
-                "SELECT component, AVG(score) AS avg_score, MIN(score) AS min_score, MAX(score) AS max_score " +
-                "FROM grades WHERE enrollment_id IN (SELECT enrollment_id FROM enrollments WHERE section_id=?) " +
-                "GROUP BY component"
-            );
-            stmt.setInt(1, sectionId);
-            ResultSet rs = stmt.executeQuery();
-            statsArea.append("Component | Avg | Min | Max\n");
-            statsArea.append("-----------------------------------\n");
-            while (rs.next()) {
-                statsArea.append(rs.getString("component") + " | " +
-                        rs.getDouble("avg_score") + " | " +
-                        rs.getDouble("min_score") + " | " +
-                        rs.getDouble("max_score") + "\n");
-            }
-        } catch (Exception ex) {
-            statsArea.append("Error: " + ex.getMessage());
+        statsArea.append("Component | Avg | Min | Max\n");
+        statsArea.append("-----------------------------------\n");
+        for (ComponentStats stat : instructorApi.loadComponentStats(sectionId)) {
+            statsArea.append(String.format("%s | %.2f | %.2f | %.2f\n",
+                    stat.getComponent(),
+                    stat.getAverage(),
+                    stat.getMinimum(),
+                    stat.getMaximum()));
         }
     }
 }
