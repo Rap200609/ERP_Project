@@ -1,7 +1,10 @@
+// Done
 package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
 import edu.univ.erp.domain.CourseCatalogEntry;
+import edu.univ.erp.domain.CourseDetail;
+import edu.univ.erp.domain.CourseOption;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -23,79 +26,56 @@ public class CourseRepository {
         this.mainDataSource = mainDataSource;
     }
 
+    // I addded this method to also show section along with the course details in the catalog panel of student dashboard.
     public List<CourseCatalogEntry> fetchCatalogEntries() throws Exception {
-        String sql = "SELECT c.code, c.title, c.credits, i.employee_id, s.capacity " +
-                "FROM courses c " +
-                "LEFT JOIN sections s ON c.course_id = s.course_id " +
-                "LEFT JOIN instructors i ON s.instructor_id = i.user_id";
+        // Left join to include each course even if it has no matching section or instructor.
+        String sql = "SELECT c.code, c.title, c.credits, s.section_code, i.employee_id, s.capacity " + "FROM courses c " + "LEFT JOIN sections s ON c.course_id = s.course_id " + "LEFT JOIN instructors i ON s.instructor_id = i.user_id " + "ORDER BY c.code, s.section_code";
         List<CourseCatalogEntry> entries = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                entries.add(new CourseCatalogEntry(
-                        rs.getString(1),
-                        rs.getString(2),
-                        rs.getInt(3),
-                        rs.getString(4),
-                        rs.getInt(5)
-                ));
+                entries.add(new CourseCatalogEntry(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getString(5), rs.getInt(6)));
             }
         }
         return entries;
     }
 
-    public List<edu.univ.erp.domain.CourseDetail> findAllCourses() throws Exception {
+    public List<CourseDetail> findAllCourses() throws Exception {
         String sql = "SELECT course_id, code, title, credits, description FROM courses";
-        List<edu.univ.erp.domain.CourseDetail> courses = new ArrayList<>();
+        List<CourseDetail> courses = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                courses.add(new edu.univ.erp.domain.CourseDetail(
-                        rs.getInt("course_id"),
-                        rs.getString("code"),
-                        rs.getString("title"),
-                        rs.getInt("credits"),
-                        rs.getString("description")
-                ));
+                courses.add(new CourseDetail(rs.getInt("course_id"),rs.getString("code"),rs.getString("title"),rs.getInt("credits"),rs.getString("description")));
             }
         }
         return courses;
     }
 
-    public Optional<edu.univ.erp.domain.CourseDetail> findCourseById(int courseId) throws Exception {
+    public Optional<CourseDetail> findCourseById(int courseId) throws Exception {
         String sql = "SELECT course_id, code, title, credits, description FROM courses WHERE course_id=?";
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, courseId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new edu.univ.erp.domain.CourseDetail(
-                            rs.getInt("course_id"),
-                            rs.getString("code"),
-                            rs.getString("title"),
-                            rs.getInt("credits"),
-                            rs.getString("description")
-                    ));
+                    return Optional.of(new CourseDetail(rs.getInt("course_id"),rs.getString("code"),rs.getString("title"),rs.getInt("credits"),rs.getString("description")));
                 }
             }
         }
         return Optional.empty();
     }
 
-    public List<edu.univ.erp.domain.CourseOption> fetchCourseOptions() throws Exception {
+    public List<CourseOption> fetchCourseOptions() throws Exception {
         String sql = "SELECT course_id, code, title FROM courses ORDER BY title";
-        List<edu.univ.erp.domain.CourseOption> options = new ArrayList<>();
+        List<CourseOption> options = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                options.add(new edu.univ.erp.domain.CourseOption(
-                        rs.getInt("course_id"),
-                        rs.getString("code"),
-                        rs.getString("title")
-                ));
+                options.add(new CourseOption(rs.getInt("course_id"),rs.getString("code"),rs.getString("title")));
             }
         }
         return options;
@@ -128,6 +108,7 @@ public class CourseRepository {
                 }
             }
         }
+        // IllegalStateException is used because its a runtime exception used to indicate that a method has not been invoked at correct time.
         throw new IllegalStateException("Failed to insert course");
     }
 

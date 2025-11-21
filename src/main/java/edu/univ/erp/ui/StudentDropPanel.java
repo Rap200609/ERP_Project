@@ -76,17 +76,29 @@ public class StudentDropPanel extends JPanel {
     }
 
     private void dropSelectedSections() {
-        List<String> sectionCodes = new ArrayList<>();
+        List<Integer> sectionIds = new ArrayList<>();
         for (int i = 0; i < enrolledModel.getRowCount(); i++) {
             Boolean selected = (Boolean) enrolledModel.getValueAt(i, 3);
             if (Boolean.TRUE.equals(selected)) {
-                sectionCodes.add((String) enrolledModel.getValueAt(i, 0));
+                String sectionCode = (String) enrolledModel.getValueAt(i, 0);
+                String courseTitle = (String) enrolledModel.getValueAt(i, 1);
+                sectionIds.add(findSectionId(sectionCode, courseTitle));
             }
         }
-        ApiResponse response = studentApi.dropSections(studentId, sectionCodes);
+        ApiResponse response = studentApi.dropSections(studentId, sectionIds);
         JOptionPane.showMessageDialog(this, response.getMessage(),
                 response.isSuccess() ? "Drop Successful" : "Drop Error",
                 response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
         loadEnrolledSections();
+    }
+
+    private int findSectionId(String sectionCode, String courseTitle) {
+        List<EnrolledSection> sections = studentApi.loadEnrolledSections(studentId);
+        for (EnrolledSection section : sections) {
+            if (section.getSectionCode().equals(sectionCode) && section.getCourseTitle().equals(courseTitle)) {
+                return section.getSectionId();
+            }
+        }
+        return -1;
     }
 }

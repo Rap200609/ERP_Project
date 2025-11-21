@@ -1,7 +1,9 @@
+// Done
 package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
 import edu.univ.erp.domain.InstructorProfile;
+import edu.univ.erp.domain.InstructorOption;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -41,12 +43,7 @@ public class InstructorRepository {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new InstructorProfile(
-                            userId,
-                            rs.getString("employee_id"),
-                            rs.getString("department"),
-                            rs.getString("email")
-                    ));
+                    return Optional.of(new InstructorProfile(userId, rs.getString("employee_id"), rs.getString("department"), rs.getString("email")));
                 }
             }
         }
@@ -73,18 +70,14 @@ public class InstructorRepository {
         }
     }
 
-    public List<edu.univ.erp.domain.InstructorOption> fetchInstructorOptions() throws Exception {
+    public List<InstructorOption> fetchInstructorOptions() throws Exception {
         String sql = "SELECT user_id, employee_id, department FROM instructors ORDER BY employee_id";
-        List<edu.univ.erp.domain.InstructorOption> instructors = new ArrayList<>();
+        List<InstructorOption> instructors = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                instructors.add(new edu.univ.erp.domain.InstructorOption(
-                        rs.getInt("user_id"),
-                        rs.getString("employee_id"),
-                        rs.getString("department")
-                ));
+                instructors.add(new InstructorOption(rs.getInt("user_id"),rs.getString("employee_id"),rs.getString("department")));
             }
         }
         return instructors;

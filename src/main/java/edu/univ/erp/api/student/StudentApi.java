@@ -45,12 +45,12 @@ public class StudentApi {
         }
     }
 
-    public ApiResponse registerSections(int studentId, List<String> sectionCodes) {
+    public ApiResponse registerSections(int studentId, List<Integer> sectionIds) {
         if (MaintenanceManager.isMaintenanceModeOn()) {
             return ApiResponse.failure("Maintenance mode is active. Registration is disabled.");
         }
         try {
-            EnrollmentService.RegistrationResult result = enrollmentService.registerForSections(studentId, sectionCodes);
+            EnrollmentService.RegistrationResult result = enrollmentService.registerForSections(studentId, sectionIds);
             if (result.successfulSections.isEmpty() && result.errorMessages.isEmpty()) {
                 return ApiResponse.failure("No sections selected for registration.");
             }
@@ -117,12 +117,12 @@ public class StudentApi {
         }
     }
 
-    public ApiResponse dropSections(int studentId, List<String> sectionCodes) {
+    public ApiResponse dropSections(int studentId, List<Integer> sectionIds) {
         if (MaintenanceManager.isMaintenanceModeOn()) {
             return ApiResponse.failure("Maintenance mode is active. Drop section is disabled.");
         }
         try {
-            EnrollmentService.DropResult result = enrollmentService.dropSections(studentId, sectionCodes);
+            EnrollmentService.DropResult result = enrollmentService.dropSections(studentId, sectionIds);
             if (result.droppedCount == 0) {
                 return ApiResponse.failure("No sections were selected to drop.");
             }

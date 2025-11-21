@@ -1,3 +1,4 @@
+// Done
 package edu.univ.erp.api.admin;
 
 import edu.univ.erp.api.common.ApiResponse;
@@ -127,10 +128,7 @@ public class AdminSectionApi {
         if (command.sectionCode == null || command.sectionCode.isBlank()) {
             return Optional.of("Section code is required.");
         }
-        if (command.day == null || command.day.isBlank()
-                || command.time == null || command.time.isBlank()
-                || command.room == null || command.room.isBlank()
-                || command.semester == null || command.semester.isBlank()) {
+        if (command.day == null || command.day.isBlank() || command.time == null || command.time.isBlank() || command.room == null || command.room.isBlank() || command.semester == null || command.semester.isBlank()) {
             return Optional.of("Day, time, room, and semester are required.");
         }
         if (command.year == null || command.year <= 0) {
@@ -142,6 +140,7 @@ public class AdminSectionApi {
         return Optional.empty();
     }
 
+    // Maps API request to create service command
     private SectionService.SectionCommand mapCommand(SectionCommand command) {
         SectionService.SectionCommand req = new SectionService.SectionCommand();
         req.courseId = command.courseId;
