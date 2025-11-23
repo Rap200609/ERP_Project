@@ -16,15 +16,15 @@ ON DUPLICATE KEY UPDATE username = username;
 -- Password: inst1_1
 -- Note: Hash generated using BCrypt. If login fails, use Admin panel to reset password
 INSERT INTO users_auth (username, role, password_hash) VALUES 
-('inst1', 'INSTRUCTOR', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+('inst1', 'INSTRUCTOR', '$2a$10$crbc0/kHfgspOl.RbyMTQuxg0E6bb/dvDACTwFVOdHYiyf0aOdcje')
 ON DUPLICATE KEY UPDATE username = username;
 
 -- Insert Student users
 -- Password: stu1_1 for stu1 and stu2_2 for stu2
 -- Note: Hash generated using BCrypt. If login fails, use Admin panel to reset password
 INSERT INTO users_auth (username, role, password_hash) VALUES 
-('stu1', 'STUDENT', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-('stu2', 'STUDENT', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+('stu1', 'STUDENT', '$2a$10$hQrQpCCCfMnbf1I5x644oexO3F5DLA755Gf2r.SCslmpNBj3y1l3G'),
+('stu2', 'STUDENT', '$2a$10$/CTCZX6ETXc7G9kzHnYaIeAObN3sFQgedtf46Kf6kEWNgyc7PZGJu')
 ON DUPLICATE KEY UPDATE username = username;
 
 -- Get the user_ids for reference (will be set below)
@@ -42,8 +42,8 @@ ON DUPLICATE KEY UPDATE user_id = user_id;
 
 -- Insert Student profiles
 INSERT INTO students (user_id, roll_no, program, year, email) VALUES 
-(@stu1_id, '2025001', 'CSE', 2, 'stu1@iiitd.ac.in'),
-(@stu2_id, '2025002', 'CSAI', 2, 'stu2@iiitd.ac.in')
+(@stu1_id, '2024001', 'CSE', 2, 'stu1@iiitd.ac.in'),
+(@stu2_id, '2024002', 'CSAI', 2, 'stu2@iiitd.ac.in')
 ON DUPLICATE KEY UPDATE user_id = user_id;
 
 -- Insert Sample Courses
@@ -53,7 +53,7 @@ INSERT INTO courses (code, title, credits, description) VALUES
 ('CSE201', 'Data Structures', 4, 'Introduction to data structures and algorithms'),
 ('CSE401', 'Database Systems', 4, 'Database design and SQL'),
 ('MTH101', 'Linear Algebra', 4, 'Mandatory course'),
-('SSH101', 'Communication Skills', 2, 'Writing and communication skills')
+('SSH101', 'Communication Skills', 4, 'Writing and communication skills')
 ON DUPLICATE KEY UPDATE code = code;
 
 -- Get course IDs
@@ -118,4 +118,10 @@ INSERT INTO grades (enrollment_id, component, score, max_score, weight) VALUES
 (@stu2_cse101_enroll, 'Midterm', 78.0, 100.0, 30.0),
 (@stu2_cse101_enroll, 'Final', 82.0, 100.0, 50.0)
 ON DUPLICATE KEY UPDATE grade_id = grade_id;
+
+-- Insert Drop Deadline Setting
+-- Default: 30 days from today
+INSERT INTO settings (setting_key, setting_value, description) VALUES 
+('drop_deadline', DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Drop section deadline (YYYY-MM-DD format)')
+ON DUPLICATE KEY UPDATE setting_value = setting_value;
 

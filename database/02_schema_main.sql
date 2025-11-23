@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS settings (
 
 -- Insert default settings
 INSERT INTO settings (setting_key, setting_value, description) VALUES 
-('maintenance_mode', 'OFF', 'System maintenance mode flag (ON/OFF)')
+('maintenance_mode', 'OFF', 'System maintenance mode flag (ON/OFF)'),
+('drop_deadline', DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Drop section deadline (YYYY-MM-DD format)')
 ON DUPLICATE KEY UPDATE setting_value = setting_value;
 

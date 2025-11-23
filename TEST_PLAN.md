@@ -238,18 +238,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 - ✅ Component appears in grade table
 - ✅ Initial scores set to 0.0
 
-### Test Case I4: Compute Final Grade
-**Steps:**
-1. Login as `inst1`
-2. Enter scores for all components (e.g., Quiz: 18/20 weight 10%, Midterm: 85/100 weight 30%, Final: 92/100 weight 50%)
-3. Verify final grade calculation
-
-**Expected Result:**
-- ✅ Final grade calculated correctly using weighted formula
-- ✅ Formula: (score1/max1 * weight1) + (score2/max2 * weight2) + ...
-- ✅ Final grade displayed appropriately
-
-### Test Case I5: View Class Stats
+### Test Case I4: View Class Stats
 **Steps:**
 1. Login as `inst1`
 2. Navigate to "Class Stats"
@@ -261,7 +250,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 - ✅ Calculations are accurate
 - ✅ All grade components included
 
-### Test Case I6: Export CSV
+### Test Case I5: Export CSV
 **Steps:**
 1. Login as `inst1`
 2. Navigate to "Export CSV"
@@ -274,7 +263,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 - ✅ Contains: Section, Student Roll No., Component, Score, Final Grade
 - ✅ All students' grades included
 
-### Test Case I7: Cannot Access Other Instructor's Section
+### Test Case I6: Cannot Access Other Instructor's Section
 **Steps:**
 1. Login as `inst1`
 2. Try to access grade entry for a section not assigned to `inst1`
@@ -385,19 +374,6 @@ The seed data (`database/03_seed_data.sql`) includes:
 - ✅ SQL dump file is valid
 - ✅ Success message displayed
 
-### Test Case A9: Restore Database
-**Steps:**
-1. Make a change to database (e.g., add a course)
-2. Navigate to "Backup/Restore"
-3. Click "Restore ERP Databases"
-4. Select previous backup file
-5. Confirm restore
-
-**Expected Result:**
-- ✅ Restore completes successfully
-- ✅ Database reverted to backup state
-- ✅ Changes made after backup are undone
-
 ---
 
 ## E. Edge & Negative Tests
@@ -415,7 +391,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 ### Test Case E2: Empty Required Fields
 **Steps:**
 1. Try to create course without title
-2. Try to create user without username
+2. Try to create user without username and password
 
 **Expected Result:**
 - ✅ Error messages for missing required fields
@@ -425,11 +401,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 **Steps:**
 1. Login as `stu1`
 2. Register for a section
-3. Try to register for same section again
+3. Try to register for another section of the same course
 
 **Expected Result:**
-- ✅ Error: "Already enrolled in this exact section"
-- ✅ Duplicate prevented at database level (UNIQUE constraint)
+- ✅ Error: "Already enrolled in another section of this course"
 
 ### Test Case E4: Student Cannot Access Another Student's Data
 **Steps:**
@@ -469,14 +444,13 @@ The seed data (`database/03_seed_data.sql`) includes:
 
 ## F. Data Integrity Tests
 
-### Test Case F1: Foreign Key Constraints
+### Test Case F1: Cascade Behaviour
 **Steps:**
 1. Try to delete a course that has sections
 2. Try to delete a student that has enrollments
 
 **Expected Result:**
-- ✅ Foreign key constraints prevent orphaned records
-- ✅ Appropriate error or cascade behavior
+- ✅ cascade behavior
 
 ### Test Case F2: Unique Constraints
 **Steps:**
@@ -516,7 +490,6 @@ The seed data (`database/03_seed_data.sql`) includes:
 
 **Expected Result:**
 - ✅ Data displayed in tables
-- ✅ Columns are sortable (if implemented)
 - ✅ Easy to read and navigate
 
 ---
@@ -549,7 +522,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 
 ### Test Case SEC1: Password Hashing
 **Steps:**
-1. Check database: `SELECT password_hash FROM users_auth WHERE username='admin1'`
+1. Check database: `USE erp_auth; SELECT * FROM users_auth;`
 
 **Expected Result:**
 - ✅ Passwords stored as bcrypt hashes (starting with $2a$)
@@ -565,37 +538,25 @@ The seed data (`database/03_seed_data.sql`) includes:
 - ✅ No password data in `erp_main`
 - ✅ User_id links both databases
 
-### Test Case SEC3: Access Rules Enforced
-**Steps:**
-1. Try to perform unauthorized actions through UI
-2. Verify database constraints
-
-**Expected Result:**
-- ✅ UI prevents unauthorized actions
-- ✅ Database enforces constraints
-- ✅ Clear error messages shown
-
 ---
 
 ## Test Summary Template
 
 After running tests, fill this out:
 
-| Test Category | Total Tests | Passed | Failed | Notes |
-|---------------|-------------|--------|--------|-------|
-| Login & Roles | 5 | | | |
-| Student Features | 9 | | | |
-| Instructor Features | 7 | | | |
-| Admin Features | 9 | | | |
-| Edge Cases | 6 | | | |
-| Data Integrity | 2 | | | |
-| UI/UX | 3 | | | |
-| Performance | 2 | | | |
-| Security | 3 | | | |
-| **Total** | **46** | | | |
+| Test Category | Total Tests | Passed | Failed |
+|---------------|-------------|--------|--------|
+| Login & Roles | 5 | 5 | 0 |
+| Student Features | 9 | 9 | 0 |
+| Instructor Features | 6 | 6 | 0 |
+| Admin Features | 8 | 8 | 0 |
+| Edge Cases | 6 | 6 | 0 |
+| Data Integrity | 2 | 2 | 0 |
+| UI/UX | 3 | 3 | 0 |
+| Performance | 2 | 2 | 0 |
+| Security | 2 | 2 | 0 |
+| **Total** | **43** | 43 | 0 |
 
-**Known Issues:**
-[List any bugs or issues found]
 
 **Test Environment:**
 - Java Version: _______

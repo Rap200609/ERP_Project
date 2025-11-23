@@ -77,12 +77,12 @@ public class EnrollmentRepository {
                 SELECT s.section_id,
                        s.section_code,
                        c.title,
-                       u.username AS instructor
+                       COALESCE(u.username, 'TBA') AS instructor
                 FROM enrollments e
                 JOIN sections s ON e.section_id = s.section_id
                 JOIN courses c ON s.course_id = c.course_id
-                JOIN instructors i ON s.instructor_id = i.user_id
-                JOIN erp_auth.users_auth u ON i.user_id = u.user_id
+                LEFT JOIN instructors i ON s.instructor_id = i.user_id
+                LEFT JOIN erp_auth.users_auth u ON i.user_id = u.user_id
                 WHERE e.student_id = ? AND e.status = 'ENROLLED'
                 ORDER BY c.title
                 """;

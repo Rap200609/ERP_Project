@@ -5,6 +5,7 @@ import edu.univ.erp.data.repository.SectionRepository;
 import edu.univ.erp.domain.EnrolledSection;
 import edu.univ.erp.domain.SectionAvailability;
 import edu.univ.erp.domain.SectionSummary;
+import edu.univ.erp.service.admin.DropDeadlineService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +19,25 @@ public class EnrollmentService {
 
     public static class DropResult {
         public int droppedCount;
+        public boolean deadlineExceeded = false;
     }
 
     private final SectionRepository sectionRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final DropDeadlineService deadlineService;
 
     public EnrollmentService() {
-        this(new SectionRepository(), new EnrollmentRepository());
+        this(new SectionRepository(), new EnrollmentRepository(), new DropDeadlineService());
     }
 
     public EnrollmentService(SectionRepository sectionRepository, EnrollmentRepository enrollmentRepository) {
+        this(sectionRepository, enrollmentRepository, new DropDeadlineService());
+    }
+
+    public EnrollmentService(SectionRepository sectionRepository, EnrollmentRepository enrollmentRepository, DropDeadlineService deadlineService) {
         this.sectionRepository = sectionRepository;
         this.enrollmentRepository = enrollmentRepository;
+        this.deadlineService = deadlineService;
     }
 
     public List<SectionAvailability> loadAvailability() throws Exception {
@@ -78,6 +86,13 @@ public class EnrollmentService {
 
     public DropResult dropSections(int studentId, List<Integer> sectionIds) throws Exception {
         DropResult result = new DropResult();
+        
+        // Check if drop deadline has passed
+        if (deadlineService.isDropDeadlinePassed()) {
+            result.deadlineExceeded = true;
+            return result;
+        }
+        
         for (int sectionId : sectionIds) {
             result.droppedCount += enrollmentRepository.dropEnrollment(studentId, sectionId);
         }

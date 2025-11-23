@@ -7,6 +7,8 @@ import edu.univ.erp.domain.EnrolledSection;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,8 @@ public class StudentDropPanel extends JPanel {
     private final int studentId;
     private final StudentApi studentApi;
     private final DefaultTableModel enrolledModel;
+    private final JButton dropBtn;
+    private final JLabel deadlineLabel;
 
     public StudentDropPanel(int studentId) {
         this(studentId, new StudentApi());
@@ -24,6 +28,22 @@ public class StudentDropPanel extends JPanel {
         this.studentApi = studentApi;
         setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
+
+        // Top panel with deadline info
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(UITheme.BG_MAIN);
+        topPanel.setBorder(new javax.swing.border.EmptyBorder(15, 15, 15, 15));
+        
+        JLabel infoLabel = new JLabel("Drop Section Deadline:");
+        infoLabel.setFont(UITheme.FONT_BODY_BOLD);
+        infoLabel.setForeground(UITheme.TEXT_PRIMARY);
+        
+        deadlineLabel = new JLabel();
+        deadlineLabel.setFont(UITheme.FONT_BODY);
+        
+        topPanel.add(infoLabel, BorderLayout.WEST);
+        topPanel.add(deadlineLabel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
 
         enrolledModel = new DefaultTableModel(new String[]{"Section Code", "Course", "Instructor", "Drop"}, 0) {
             @Override
@@ -46,7 +66,7 @@ public class StudentDropPanel extends JPanel {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setBackground(UITheme.BG_MAIN);
         bottomPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
-        JButton dropBtn = new JButton("Drop Selected Sections");
+        dropBtn = new JButton("Drop Selected Sections");
         UITheme.stylePrimaryButton(dropBtn);
         dropBtn.addActionListener(e -> dropSelectedSections());
         bottomPanel.add(dropBtn);
@@ -72,6 +92,31 @@ public class StudentDropPanel extends JPanel {
                     section.getInstructorName(),
                     false
             });
+        }
+        
+        // Update deadline info
+        updateDeadlineInfo();
+    }
+
+    private void updateDeadlineInfo() {
+        LocalDate deadline = studentApi.getDropDeadline();
+        if (deadline != null) {
+            deadlineLabel.setText(deadline.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")));
+            
+            if (studentApi.isDropDeadlinePassed()) {
+                deadlineLabel.setForeground(UITheme.ACCENT_ERROR);
+                dropBtn.setEnabled(false);
+                dropBtn.setText("Drop Deadline Passed - Cannot Drop Sections");
+                dropBtn.setToolTipText("The drop deadline has passed. No more sections can be dropped.");
+            } else {
+                deadlineLabel.setForeground(UITheme.ACCENT_SUCCESS);
+                dropBtn.setEnabled(true);
+                dropBtn.setText("Drop Selected Sections");
+                dropBtn.setToolTipText("Drop sections before the deadline");
+            }
+        } else {
+            deadlineLabel.setText("Unable to load deadline");
+            deadlineLabel.setForeground(UITheme.ACCENT_ERROR);
         }
     }
 

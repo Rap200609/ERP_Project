@@ -8,8 +8,10 @@ import edu.univ.erp.domain.StudentCourseOption;
 import edu.univ.erp.service.student.EnrollmentService;
 import edu.univ.erp.service.student.GradeService;
 import edu.univ.erp.service.student.TranscriptService;
+import edu.univ.erp.service.admin.DropDeadlineService;
 import edu.univ.erp.util.MaintenanceManager;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -18,23 +20,29 @@ public class StudentApi {
     private final EnrollmentService enrollmentService;
     private final GradeService gradeService;
     private final TranscriptService transcriptService;
+    private final DropDeadlineService deadlineService;
 
     public StudentApi() {
-        this(new EnrollmentService(), new GradeService(), new TranscriptService());
+        this(new EnrollmentService(), new GradeService(), new TranscriptService(), new DropDeadlineService());
     }
 
     public StudentApi(EnrollmentService enrollmentService) {
-        this(enrollmentService, new GradeService(), new TranscriptService());
+        this(enrollmentService, new GradeService(), new TranscriptService(), new DropDeadlineService());
     }
 
     public StudentApi(EnrollmentService enrollmentService, GradeService gradeService) {
-        this(enrollmentService, gradeService, new TranscriptService());
+        this(enrollmentService, gradeService, new TranscriptService(), new DropDeadlineService());
     }
 
     public StudentApi(EnrollmentService enrollmentService, GradeService gradeService, TranscriptService transcriptService) {
+        this(enrollmentService, gradeService, transcriptService, new DropDeadlineService());
+    }
+
+    public StudentApi(EnrollmentService enrollmentService, GradeService gradeService, TranscriptService transcriptService, DropDeadlineService deadlineService) {
         this.enrollmentService = enrollmentService;
         this.gradeService = gradeService;
         this.transcriptService = transcriptService;
+        this.deadlineService = deadlineService;
     }
 
     public List<SectionAvailability> loadRegistrationCatalog() {
@@ -123,6 +131,11 @@ public class StudentApi {
         }
         try {
             EnrollmentService.DropResult result = enrollmentService.dropSections(studentId, sectionIds);
+            
+            if (result.deadlineExceeded) {
+                return ApiResponse.failure("Drop deadline has passed. You can no longer drop sections.");
+            }
+            
             if (result.droppedCount == 0) {
                 return ApiResponse.failure("No sections were selected to drop.");
             }
@@ -138,6 +151,22 @@ public class StudentApi {
             return ApiResponse.failure("No rows selected.");
         }
         return ApiResponse.success("Selection OK");
+    }
+
+    public LocalDate getDropDeadline() {
+        try {
+            return deadlineService.getDropDeadline();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public boolean isDropDeadlinePassed() {
+        try {
+            return deadlineService.isDropDeadlinePassed();
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }
 
