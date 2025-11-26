@@ -39,9 +39,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Login"
 
 **Expected Result:**
-- ✅ Login successful message displayed
-- ✅ Admin Dashboard opens with correct menu items
-- ✅ User can see admin-specific features
+-  Login successful message displayed
+-  Admin Dashboard opens with correct menu items
+-  User can see admin-specific features
 
 ### Test Case L2: Wrong Password Rejected
 **Steps:**
@@ -51,9 +51,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Login"
 
 **Expected Result:**
-- ✅ Error message: "Incorrect username or password."
-- ✅ Login fails
-- ✅ Remains on login screen
+-  Error message: "Incorrect username or password."
+-  Login fails
+-  Remains on login screen
 
 ### Test Case L3: Wrong Username Rejected
 **Steps:**
@@ -63,8 +63,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Login"
 
 **Expected Result:**
-- ✅ Error message: "Incorrect username or password." (same message for security)
-- ✅ Login fails
+-  Error message: "Incorrect username or password." (same message for security)
+-  Login fails
 
 ### Test Case L4: Role-Based Dashboards
 **Steps:**
@@ -73,9 +73,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Logout, login as `stu1` → Verify Student Dashboard opens
 
 **Expected Result:**
-- ✅ Each role sees appropriate dashboard
-- ✅ Menu items match role capabilities
-- ✅ Role-specific panels are accessible
+-  Each role sees appropriate dashboard
+-  Menu items match role capabilities
+-  Role-specific panels are accessible
 
 ### Test Case L5: Login Lockout (Bonus Feature)
 **Steps:**
@@ -83,9 +83,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to login again with correct password
 
 **Expected Result:**
-- ✅ After 5 failed attempts: "Too many failed login attempts. Account locked for 15 minutes."
-- ✅ Cannot login even with correct password during lockout period
-- ✅ After 15 minutes, can login successfully
+-  After 5 failed attempts: "Too many failed login attempts. Account locked for 15 minutes."
+-  Cannot login even with correct password during lockout period
+-  After 15 minutes, can login successfully
 
 ---
 
@@ -97,9 +97,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Navigate to "Course Catalog"
 
 **Expected Result:**
-- ✅ Table displays courses with columns: Code, Title, Credits, Instructor, Capacity
-- ✅ All available courses are listed
-- ✅ Information is accurate
+-  Table displays courses with columns: Code, Title, Credits, Instructor, Capacity
+-  All available courses are listed
+-  Information is accurate
 
 ### Test Case S2: Register for Section
 **Steps:**
@@ -109,10 +109,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Register Selected Sections"
 
 **Expected Result:**
-- ✅ Success message displayed
-- ✅ Section appears in "My Timetable"
-- ✅ Section appears in "Drop Section" list
-- ✅ Available seats count decreases
+-  Success message displayed
+-  Section appears in "My Timetable"
+-  Section appears in "Drop Section" list
+-  Available seats count decreases
 
 ### Test Case S3: Cannot Register Same Section Twice
 **Steps:**
@@ -120,9 +120,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to register for a section already enrolled in
 
 **Expected Result:**
-- ✅ Error message: "Already enrolled in this exact section"
-- ✅ Registration is blocked
-- ✅ Enrollment status unchanged
+-  Error message: "Already enrolled in this exact section"
+-  Registration is blocked
+-  Enrollment status unchanged
 
 ### Test Case S4: Cannot Register in Full Section
 **Steps:**
@@ -131,8 +131,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Try to register
 
 **Expected Result:**
-- ✅ Error message: "Section is full"
-- ✅ Registration is blocked
+-  Error message: "Section is full"
+-  Registration is blocked
 
 ### Test Case S5: Drop Section
 **Steps:**
@@ -142,10 +142,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Drop Selected Sections"
 
 **Expected Result:**
-- ✅ Success message displayed
-- ✅ Section removed from "My Timetable"
-- ✅ Section removed from "Drop Section" list
-- ✅ Can register for same section again
+-  Success message displayed
+-  Section removed from "My Timetable"
+-  Section removed from "Drop Section" list
+-  Can register for same section again
 
 ### Test Case S6: View Timetable
 **Steps:**
@@ -153,9 +153,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Navigate to "My Timetable"
 
 **Expected Result:**
-- ✅ Table shows: Section, Course, Day, Time, Room
-- ✅ Only enrolled sections are displayed
-- ✅ Schedule information is correct
+-  Table shows: Section, Course, Day, Time, Room
+-  Only enrolled sections are displayed
+-  Schedule information is correct
 
 ### Test Case S7: View Grades
 **Steps:**
@@ -164,9 +164,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Select a course from dropdown
 
 **Expected Result:**
-- ✅ Grade components displayed: Component, Score, Max Score, Weight, Percentage
-- ✅ Final grade calculated and displayed (e.g., "Final Grade: 85.50% (B)")
-- ✅ Letter grade shown correctly
+-  Grade components displayed: Component, Score, Max Score, Weight, Percentage
+-  Final grade calculated and displayed (e.g., "Final Grade: 85.50% (B)")
+-  Letter grade shown correctly
 
 ### Test Case S8: Download Transcript (CSV)
 **Steps:**
@@ -177,10 +177,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Open the CSV file
 
 **Expected Result:**
-- ✅ File saves successfully
-- ✅ CSV contains: Section, Course, Final Percentage, Letter Grade
-- ✅ All enrolled courses are included
-- ✅ Grades are calculated correctly
+-  File saves successfully
+-  CSV contains: Section, Course, Final Percentage, Letter Grade
+-  All enrolled courses are included
+-  Grades are calculated correctly
 
 ### Test Case S9: Download Transcript (PDF)
 **Steps:**
@@ -191,10 +191,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Open the PDF file
 
 **Expected Result:**
-- ✅ PDF file saves successfully
-- ✅ PDF contains student name, roll number
-- ✅ Table shows: Section, Course, Percentage, Grade
-- ✅ Formatting is clean and readable
+-  PDF file saves successfully
+-  PDF contains student name, roll number
+-  Table shows: Section, Course, Percentage, Grade
+-  Formatting is clean and readable
 
 ---
 
@@ -206,9 +206,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Navigate to "My Sections"
 
 **Expected Result:**
-- ✅ Table shows only sections assigned to `inst1`
-- ✅ Columns: Section, Course, Semester, Year, Capacity, Room, Day, Time
-- ✅ No other instructor's sections visible
+-  Table shows only sections assigned to `inst1`
+-  Columns: Section, Course, Semester, Year, Capacity, Room, Day, Time
+-  No other instructor's sections visible
 
 ### Test Case I2: Enter Scores
 **Steps:**
@@ -220,9 +220,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 6. Click "Save Grades"
 
 **Expected Result:**
-- ✅ Scores saved successfully
-- ✅ Success message displayed
-- ✅ Grades persist after refresh
+-  Scores saved successfully
+-  Success message displayed
+-  Grades persist after refresh
 
 ### Test Case I3: Add Grade Component
 **Steps:**
@@ -234,9 +234,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 6. Click OK
 
 **Expected Result:**
-- ✅ Component added to all students in section
-- ✅ Component appears in grade table
-- ✅ Initial scores set to 0.0
+-  Component added to all students in section
+-  Component appears in grade table
+-  Initial scores set to 0.0
 
 ### Test Case I4: View Class Stats
 **Steps:**
@@ -246,9 +246,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Show Stats"
 
 **Expected Result:**
-- ✅ Statistics displayed: Component, Avg, Min, Max
-- ✅ Calculations are accurate
-- ✅ All grade components included
+-  Statistics displayed: Component, Avg, Min, Max
+-  Calculations are accurate
+-  All grade components included
 
 ### Test Case I5: Export CSV
 **Steps:**
@@ -259,9 +259,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Open CSV file
 
 **Expected Result:**
-- ✅ CSV file saved successfully
-- ✅ Contains: Section, Student Roll No., Component, Score, Final Grade
-- ✅ All students' grades included
+-  CSV file saved successfully
+-  Contains: Section, Student Roll No., Component, Score, Final Grade
+-  All students' grades included
 
 ### Test Case I6: Cannot Access Other Instructor's Section
 **Steps:**
@@ -269,8 +269,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to access grade entry for a section not assigned to `inst1`
 
 **Expected Result:**
-- ✅ Cannot see sections from other instructors
-- ✅ No unauthorized access possible
+-  Cannot see sections from other instructors
+-  No unauthorized access possible
 
 ---
 
@@ -285,10 +285,10 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Click "Add User"
 
 **Expected Result:**
-- ✅ User created successfully
-- ✅ Appears in users table
-- ✅ Can login with new credentials
-- ✅ Student profile created in ERP DB
+-  User created successfully
+-  Appears in users table
+-  Can login with new credentials
+-  Student profile created in ERP DB
 
 ### Test Case A2: Create Instructor User
 **Steps:**
@@ -299,9 +299,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Click "Add User"
 
 **Expected Result:**
-- ✅ User created successfully
-- ✅ Instructor profile created
-- ✅ Can login as instructor
+-  User created successfully
+-  Instructor profile created
+-  Can login as instructor
 
 ### Test Case A3: Create Course
 **Steps:**
@@ -311,9 +311,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Add Course"
 
 **Expected Result:**
-- ✅ Course added to table
-- ✅ Appears in course list
-- ✅ Can be selected when creating sections
+-  Course added to table
+-  Appears in course list
+-  Can be selected when creating sections
 
 ### Test Case A4: Create Section
 **Steps:**
@@ -323,9 +323,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Click "Add Section"
 
 **Expected Result:**
-- ✅ Section created successfully
-- ✅ Appears in sections table
-- ✅ Available for student registration
+-  Section created successfully
+-  Appears in sections table
+-  Available for student registration
 
 ### Test Case A5: Assign Instructor to Section
 **Steps:**
@@ -336,9 +336,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. Click OK
 
 **Expected Result:**
-- ✅ Instructor assigned successfully
-- ✅ Section shows updated instructor
-- ✅ Instructor can see section in their dashboard
+-  Instructor assigned successfully
+-  Section shows updated instructor
+-  Instructor can see section in their dashboard
 
 ### Test Case A6: Toggle Maintenance Mode ON
 **Steps:**
@@ -347,20 +347,20 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Click "Enable Maintenance Mode"
 
 **Expected Result:**
-- ✅ Status shows "MAINTENANCE MODE ACTIVE"
-- ✅ Banner appears on student/instructor dashboards
-- ✅ Student/instructor cannot make changes (test register/drop blocked)
-- ✅ View-only access for students/instructors
+-  Status shows "MAINTENANCE MODE ACTIVE"
+-  Banner appears on student/instructor dashboards
+-  Student/instructor cannot make changes (test register/drop blocked)
+-  View-only access for students/instructors
 
 ### Test Case A7: Toggle Maintenance Mode OFF
 **Steps:**
 1. With maintenance ON, click "Disable Maintenance Mode"
 
 **Expected Result:**
-- ✅ Status shows "Maintenance Mode is OFF"
-- ✅ Banner disappears
-- ✅ Normal functionality restored
-- ✅ Students/instructors can make changes again
+-  Status shows "Maintenance Mode is OFF"
+-  Banner disappears
+-  Normal functionality restored
+-  Students/instructors can make changes again
 
 ### Test Case A8: Backup Database
 **Steps:**
@@ -370,9 +370,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 4. Choose save location
 
 **Expected Result:**
-- ✅ Backup file created successfully
-- ✅ SQL dump file is valid
-- ✅ Success message displayed
+-  Backup file created successfully
+-  SQL dump file is valid
+-  Success message displayed
 
 ---
 
@@ -384,9 +384,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to create section with capacity = -5
 
 **Expected Result:**
-- ✅ Error message displayed
-- ✅ Section not created
-- ✅ Validation prevents invalid data
+-  Error message displayed
+-  Section not created
+-  Validation prevents invalid data
 
 ### Test Case E2: Empty Required Fields
 **Steps:**
@@ -394,8 +394,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to create user without username and password
 
 **Expected Result:**
-- ✅ Error messages for missing required fields
-- ✅ Operation blocked until fields filled
+-  Error messages for missing required fields
+-  Operation blocked until fields filled
 
 ### Test Case E3: Duplicate Enrollment Prevention
 **Steps:**
@@ -404,7 +404,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Try to register for another section of the same course
 
 **Expected Result:**
-- ✅ Error: "Already enrolled in another section of this course"
+-  Error: "Already enrolled in another section of this course"
 
 ### Test Case E4: Student Cannot Access Another Student's Data
 **Steps:**
@@ -413,9 +413,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Check "Timetable" - should only see own enrollments
 
 **Expected Result:**
-- ✅ Only `stu1`'s data visible
-- ✅ No access to `stu2`'s data
-- ✅ Queries filtered by student_id
+-  Only `stu1`'s data visible
+-  No access to `stu2`'s data
+-  Queries filtered by student_id
 
 ### Test Case E5: Instructor Cannot Grade Other Sections
 **Steps:**
@@ -424,8 +424,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Check section dropdown - should only show own sections
 
 **Expected Result:**
-- ✅ Only `inst1`'s sections available
-- ✅ Cannot access other instructors' sections
+-  Only `inst1`'s sections available
+-  Cannot access other instructors' sections
 
 ### Test Case E6: Maintenance Mode Blocks All Writes
 **Steps:**
@@ -436,9 +436,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 5. As instructor: Try to add component
 
 **Expected Result:**
-- ✅ All write operations blocked with message
-- ✅ Clear message: "Maintenance mode is active"
-- ✅ Only read/view operations allowed
+-  All write operations blocked with message
+-  Clear message: "Maintenance mode is active"
+-  Only read/view operations allowed
 
 ---
 
@@ -450,7 +450,7 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to delete a student that has enrollments
 
 **Expected Result:**
-- ✅ cascade behavior
+-  cascade behavior
 
 ### Test Case F2: Unique Constraints
 **Steps:**
@@ -458,8 +458,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Try to create duplicate section code (same course, semester, year)
 
 **Expected Result:**
-- ✅ Database prevents duplicates
-- ✅ Error message displayed
+-  Database prevents duplicates
+-  Error message displayed
 
 ---
 
@@ -471,26 +471,26 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Check button labels and field labels
 
 **Expected Result:**
-- ✅ All buttons clearly labeled
-- ✅ All fields have descriptive labels
-- ✅ No confusing terminology
+-  All buttons clearly labeled
+-  All fields have descriptive labels
+-  No confusing terminology
 
 ### Test Case G2: Friendly Error Messages
 **Steps:**
 1. Trigger various errors (wrong password, full section, etc.)
 
 **Expected Result:**
-- ✅ Error messages are clear and helpful
-- ✅ Messages explain what went wrong
-- ✅ No technical jargon in user-facing messages
+-  Error messages are clear and helpful
+-  Messages explain what went wrong
+-  No technical jargon in user-facing messages
 
 ### Test Case G3: Tables for Lists
 **Steps:**
 1. Check course catalog, user list, section list
 
 **Expected Result:**
-- ✅ Data displayed in tables
-- ✅ Easy to read and navigate
+-  Data displayed in tables
+-  Easy to read and navigate
 
 ---
 
@@ -503,8 +503,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 3. Measure load time
 
 **Expected Result:**
-- ✅ Catalog loads in < 3 seconds
-- ✅ No freezing or hanging
+-  Catalog loads in < 3 seconds
+-  No freezing or hanging
 
 ### Test Case P2: Application Starts Without Hangs
 **Steps:**
@@ -512,9 +512,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Observe startup time
 
 **Expected Result:**
-- ✅ Application starts quickly
-- ✅ No long pauses or crashes
-- ✅ Login screen appears promptly
+-  Application starts quickly
+-  No long pauses or crashes
+-  Login screen appears promptly
 
 ---
 
@@ -525,8 +525,8 @@ The seed data (`database/03_seed_data.sql`) includes:
 1. Check database: `USE erp_auth; SELECT * FROM users_auth;`
 
 **Expected Result:**
-- ✅ Passwords stored as bcrypt hashes (starting with $2a$)
-- ✅ No plaintext passwords in database
+-  Passwords stored as bcrypt hashes (starting with $2a$)
+-  No plaintext passwords in database
 
 ### Test Case SEC2: Two-Database Separation
 **Steps:**
@@ -534,9 +534,9 @@ The seed data (`database/03_seed_data.sql`) includes:
 2. Verify student/instructor data only in `erp_main` database
 
 **Expected Result:**
-- ✅ Clear separation maintained
-- ✅ No password data in `erp_main`
-- ✅ User_id links both databases
+-  Clear separation maintained
+-  No password data in `erp_main`
+-  User_id links both databases
 
 ---
 
@@ -559,8 +559,8 @@ After running tests, fill this out:
 
 
 **Test Environment:**
-- Java Version: _______
-- MySQL Version: _______
-- OS: _______
-- Test Date: _______
+- Java Version: 17
+- MySQL Version: 8.0.33
+- OS: Windows 
+- Test Date: 24-November-2025
 

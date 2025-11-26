@@ -15,7 +15,10 @@ import java.awt.*;
  */
 public class UITheme {
     
-    // ========== COLOR PALETTE ==========
+    /**
+     *  COLOR PALETTE 
+     */
+
     // Primary Institutional Colors - Teal Theme
     public static final Color PRIMARY_DARK = new Color(0, 77, 77);       // Deep Teal
     public static final Color PRIMARY = new Color(0, 128, 128);          // Medium Teal
@@ -56,7 +59,10 @@ public class UITheme {
     public static final Color TABLE_ROW_ODD = new Color(248, 249, 250);  // Odd Row
     public static final Color TABLE_ROW_HOVER = new Color(240, 242, 245); // Row Hover
     
-    // ========== FONTS ==========
+    /**
+     * FONTS
+     */
+
     public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 24);
     public static final Font FONT_HEADING = new Font("Segoe UI", Font.BOLD, 18);
     public static final Font FONT_SUBHEADING = new Font("Segoe UI", Font.BOLD, 14);
@@ -65,7 +71,9 @@ public class UITheme {
     public static final Font FONT_SMALL = new Font("Segoe UI", Font.PLAIN, 11);
     public static final Font FONT_BUTTON = new Font("Segoe UI", Font.BOLD, 13);
     
-    // ========== BORDERS ==========
+    /**
+     *  BORDERS 
+     */
     public static final Border BORDER_NONE = new EmptyBorder(0, 0, 0, 0);
     public static final Border BORDER_PANEL = new CompoundBorder(
         new LineBorder(BORDER_LIGHT, 1, true),
@@ -76,7 +84,9 @@ public class UITheme {
         new EmptyBorder(8, 10, 8, 10)
     );
     
-    // ========== BUTTON STYLING ==========
+    /**
+     * BUTTON STYLING
+     */
     
     /**
      * Styles a button with the primary theme
@@ -174,7 +184,9 @@ public class UITheme {
         });
     }
     
-    // ========== TEXT FIELD STYLING ==========
+    /**
+     *   TEXT FIELD STYLING 
+     */
     
     /**
      * Styles a text field with the theme
@@ -205,7 +217,9 @@ public class UITheme {
         combo.setPreferredSize(new Dimension(200, 36));
     }
     
-    // ========== LABEL STYLING ==========
+    /** 
+     * LABEL STYLING 
+     */
     
     /**
      * Styles a label with the theme
@@ -223,7 +237,9 @@ public class UITheme {
         label.setForeground(PRIMARY_DARK);
     }
     
-    // ========== TABLE STYLING ==========
+    /**
+     * TABLE STYLING
+     */ 
     
     /**
      * Styles a JTable with the institutional theme
@@ -276,7 +292,9 @@ public class UITheme {
         scrollPane.getViewport().setBackground(BG_PANEL);
     }
     
-    // ========== PANEL STYLING ==========
+    /**
+     *  PANEL STYLING
+     */ 
     
     /**
      * Styles a content panel
@@ -294,7 +312,9 @@ public class UITheme {
         panel.setBorder(BORDER_PANEL);
     }
     
-    // ========== UTILITY METHODS ==========
+    /**
+     *  UTILITY METHOD
+     */ 
     
     /**
      * Creates a styled separator
@@ -320,4 +340,3 @@ public class UITheme {
         return Box.createRigidArea(new Dimension(width, 0));
     }
 }
-

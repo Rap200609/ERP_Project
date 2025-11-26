@@ -42,7 +42,6 @@ public class AddUserPanel extends JPanel {
         setBackground(UITheme.BG_MAIN);
         setLayout(new BorderLayout());
         
-        // Form panel at top
         JPanel formPanel = new JPanel();
         UITheme.styleCardPanel(formPanel);
         formPanel.setLayout(new GridBagLayout());
@@ -169,7 +168,7 @@ public class AddUserPanel extends JPanel {
         loadUserTable();
     }
 
-    // ---- UI custom helpers ----
+    // UI custom helpers
     private JTextField createTextField(int cols) {
         JTextField tf = new JTextField(cols);
         styleField(tf);
