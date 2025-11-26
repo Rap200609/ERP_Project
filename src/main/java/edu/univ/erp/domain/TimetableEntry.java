@@ -35,4 +35,3 @@ public class TimetableEntry {
         return room;
     }
 }
-

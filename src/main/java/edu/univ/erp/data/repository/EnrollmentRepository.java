@@ -2,6 +2,9 @@ package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
 import edu.univ.erp.domain.EnrolledSection;
+import edu.univ.erp.domain.TimetableEntry;
+import edu.univ.erp.domain.StudentCourseOption;
+import edu.univ.erp.domain.StudentProfile;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -72,12 +75,10 @@ public class EnrollmentRepository {
         }
     }
 
+    // COALESCE() chooses the first non-null value.
     public List<EnrolledSection> findEnrolledSections(int studentId) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.section_code,
-                       c.title,
-                       COALESCE(u.username, 'TBA') AS instructor
+                SELECT s.section_id, s.section_code, c.title, COALESCE(u.username, 'TBA') AS instructor
                 FROM enrollments e
                 JOIN sections s ON e.section_id = s.section_id
                 JOIN courses c ON s.course_id = c.course_id
@@ -92,71 +93,50 @@ public class EnrollmentRepository {
             stmt.setInt(1, studentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new EnrolledSection(
-                            rs.getInt("section_id"),
-                            rs.getString("section_code"),
-                            rs.getString("title"),
-                            rs.getString("instructor")
-                    ));
+                    list.add(new EnrolledSection(rs.getInt("section_id"), rs.getString("section_code"), rs.getString("title"), rs.getString("instructor")));
                 }
             }
         }
         return list;
     }
 
-    public List<edu.univ.erp.domain.TimetableEntry> findTimetableEntries(int studentId) throws Exception {
+    public List<TimetableEntry> findTimetableEntries(int studentId) throws Exception {
         String sql = """
-                SELECT s.section_code,
-                       c.title,
-                       s.day,
-                       s.time,
-                       s.room
+                SELECT s.section_code, c.title, s.day, s.time, s.room
                 FROM enrollments e
                 JOIN sections s ON e.section_id = s.section_id
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE e.student_id = ? AND e.status = 'ENROLLED'
                 """;
-        List<edu.univ.erp.domain.TimetableEntry> entries = new ArrayList<>();
+        List<TimetableEntry> entries = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    entries.add(new edu.univ.erp.domain.TimetableEntry(
-                            rs.getString("section_code"),
-                            rs.getString("title"),
-                            rs.getString("day"),
-                            rs.getString("time"),
-                            rs.getString("room")
-                    ));
+                    entries.add(new TimetableEntry(rs.getString("section_code"), rs.getString("title"), rs.getString("day"), rs.getString("time"), rs.getString("room")));
                 }
             }
         }
         return entries;
     }
 
-    public List<edu.univ.erp.domain.StudentCourseOption> findCourseOptions(int studentId) throws Exception {
+    public List<StudentCourseOption> findCourseOptions(int studentId) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.section_code,
-                       c.title
+                SELECT s.section_id, s.section_code, c.title
                 FROM enrollments e
                 JOIN sections s ON e.section_id = s.section_id
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE e.student_id = ? AND e.status = 'ENROLLED'
                 ORDER BY c.title, s.section_code
                 """;
-        List<edu.univ.erp.domain.StudentCourseOption> options = new ArrayList<>();
+        List<StudentCourseOption> options = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    options.add(new edu.univ.erp.domain.StudentCourseOption(
-                            rs.getInt("section_id"),
-                            rs.getString("section_code"),
-                            rs.getString("title")
-                    ));
+                    options.add(new StudentCourseOption(rs.getInt("section_id"), rs.getString("section_code"), rs.getString("title")));
                 }
             }
         }
@@ -190,31 +170,21 @@ public class EnrollmentRepository {
         }
     }
 
-    public List<edu.univ.erp.domain.StudentProfile> findStudentsInSection(int sectionId) throws Exception {
+    public List<StudentProfile> findStudentsInSection(int sectionId) throws Exception {
         String sql = """
-                SELECT st.user_id,
-                       st.roll_no,
-                       st.program,
-                       st.year,
-                       st.email
+                SELECT st.user_id, st.roll_no, st.program, st.year, st.email
                 FROM enrollments e
                 JOIN students st ON e.student_id = st.user_id
                 WHERE e.section_id = ? AND e.status = 'ENROLLED'
                 ORDER BY st.roll_no
                 """;
-        List<edu.univ.erp.domain.StudentProfile> students = new ArrayList<>();
+        List<StudentProfile> students = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, sectionId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    students.add(new edu.univ.erp.domain.StudentProfile(
-                            rs.getInt("user_id"),
-                            rs.getString("roll_no"),
-                            rs.getString("program"),
-                            rs.getInt("year"),
-                            rs.getString("email")
-                    ));
+                    students.add(new StudentProfile(rs.getInt("user_id"), rs.getString("roll_no"), rs.getString("program"), rs.getInt("year"), rs.getString("email")));
                 }
             }
         }

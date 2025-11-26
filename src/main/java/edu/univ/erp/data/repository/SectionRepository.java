@@ -27,12 +27,8 @@ public class SectionRepository {
 
     public List<SectionAvailability> fetchSectionAvailability() throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.section_code,
-                       c.title,
-                       u.username AS instructor,
-                       s.capacity,
-                       (SELECT COUNT(*) FROM enrollments e WHERE e.section_id = s.section_id AND e.status = 'ENROLLED') AS enrolled
+                SELECT s.section_id, s.section_code, c.title, u.username AS instructor, s.capacity,
+                (SELECT COUNT(*) FROM enrollments e WHERE e.section_id = s.section_id AND e.status = 'ENROLLED') AS enrolled
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 LEFT JOIN instructors i ON s.instructor_id = i.user_id
@@ -44,14 +40,7 @@ public class SectionRepository {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(new SectionAvailability(
-                        rs.getInt("section_id"),
-                        rs.getString("section_code"),
-                        rs.getString("title"),
-                        rs.getString("instructor"),
-                        rs.getInt("capacity"),
-                        rs.getInt("enrolled")
-                ));
+                list.add(new SectionAvailability(rs.getInt("section_id"), rs.getString("section_code"), rs.getString("title"), rs.getString("instructor"), rs.getInt("capacity"), rs.getInt("enrolled")));
             }
         }
         return list;
@@ -59,11 +48,7 @@ public class SectionRepository {
 
     public Optional<SectionSummary> findByCode(String sectionCode) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.course_id,
-                       s.section_code,
-                       s.capacity,
-                       c.title
+                SELECT s.section_id, s.course_id, s.section_code, s.capacity, c.title
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE s.section_code = ?
@@ -73,13 +58,7 @@ public class SectionRepository {
             stmt.setString(1, sectionCode);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new SectionSummary(
-                            rs.getInt("section_id"),
-                            rs.getInt("course_id"),
-                            rs.getString("section_code"),
-                            rs.getString("title"),
-                            rs.getInt("capacity")
-                    ));
+                    return Optional.of(new SectionSummary(rs.getInt("section_id"), rs.getInt("course_id"), rs.getString("section_code"), rs.getString("title"), rs.getInt("capacity")));
                 }
             }
         }
@@ -88,11 +67,7 @@ public class SectionRepository {
 
     public Optional<SectionSummary> findById(int sectionId) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.course_id,
-                       s.section_code,
-                       s.capacity,
-                       c.title
+                SELECT s.section_id, s.course_id, s.section_code, s.capacity, c.title
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE s.section_id = ?
@@ -102,13 +77,7 @@ public class SectionRepository {
             stmt.setInt(1, sectionId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new SectionSummary(
-                            rs.getInt("section_id"),
-                            rs.getInt("course_id"),
-                            rs.getString("section_code"),
-                            rs.getString("title"),
-                            rs.getInt("capacity")
-                    ));
+                    return Optional.of(new SectionSummary(rs.getInt("section_id"), rs.getInt("course_id"), rs.getString("section_code"), rs.getString("title"), rs.getInt("capacity")));
                 }
             }
         }
@@ -117,17 +86,7 @@ public class SectionRepository {
 
     public List<SectionDetail> findAllSectionDetails() throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.course_id,
-                       c.code,
-                       c.title,
-                       s.section_code,
-                       s.day,
-                       s.time,
-                       s.room,
-                       s.semester,
-                       s.year,
-                       s.capacity
+                SELECT s.section_id, s.course_id, c.code, c.title, s.section_code, s.day, s.time, s.room, s.semester, s.year, s.capacity
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 ORDER BY c.title, s.section_code
@@ -137,19 +96,7 @@ public class SectionRepository {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(new SectionDetail(
-                        rs.getInt("section_id"),
-                        rs.getInt("course_id"),
-                        rs.getString("code"),
-                        rs.getString("title"),
-                        rs.getString("section_code"),
-                        rs.getString("day"),
-                        rs.getString("time"),
-                        rs.getString("room"),
-                        rs.getString("semester"),
-                        rs.getInt("year"),
-                        rs.getInt("capacity")
-                ));
+                list.add(new SectionDetail(rs.getInt("section_id"), rs.getInt("course_id"), rs.getString("code"), rs.getString("title"), rs.getString("section_code"), rs.getString("day"), rs.getString("time"), rs.getString("room"), rs.getString("semester"), rs.getInt("year"), rs.getInt("capacity")));
             }
         }
         return list;
@@ -157,17 +104,7 @@ public class SectionRepository {
 
     public Optional<SectionDetail> findSectionDetailById(int sectionId) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.course_id,
-                       c.code,
-                       c.title,
-                       s.section_code,
-                       s.day,
-                       s.time,
-                       s.room,
-                       s.semester,
-                       s.year,
-                       s.capacity
+                SELECT s.section_id, s.course_id, c.code, c.title, s.section_code, s.day, s.time, s.room, s.semester, s.year, s.capacity
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE s.section_id = ?
@@ -177,33 +114,14 @@ public class SectionRepository {
             stmt.setInt(1, sectionId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new SectionDetail(
-                            rs.getInt("section_id"),
-                            rs.getInt("course_id"),
-                            rs.getString("code"),
-                            rs.getString("title"),
-                            rs.getString("section_code"),
-                            rs.getString("day"),
-                            rs.getString("time"),
-                            rs.getString("room"),
-                            rs.getString("semester"),
-                            rs.getInt("year"),
-                            rs.getInt("capacity")
-                    ));
+                    return Optional.of(new SectionDetail(rs.getInt("section_id"), rs.getInt("course_id"), rs.getString("code"), rs.getString("title"), rs.getString("section_code"), rs.getString("day"), rs.getString("time"), rs.getString("room"), rs.getString("semester"), rs.getInt("year"), rs.getInt("capacity")));
                 }
             }
         }
         return Optional.empty();
     }
 
-    public void createSection(int courseId,
-                              String sectionCode,
-                              String day,
-                              String time,
-                              String room,
-                              String semester,
-                              int year,
-                              int capacity) throws Exception {
+    public void createSection(int courseId, String sectionCode, String day, String time, String room, String semester, int year, int capacity) throws Exception {
         String sql = """
                 INSERT INTO sections (course_id, section_code, day, time, room, semester, year, capacity)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -222,15 +140,7 @@ public class SectionRepository {
         }
     }
 
-    public void updateSection(int sectionId,
-                              int courseId,
-                              String sectionCode,
-                              String day,
-                              String time,
-                              String room,
-                              String semester,
-                              int year,
-                              int capacity) throws Exception {
+    public void updateSection(int sectionId, int courseId, String sectionCode, String day, String time, String room, String semester, int year, int capacity) throws Exception {
         String sql = """
                 UPDATE sections
                 SET course_id=?, section_code=?, day=?, time=?, room=?, semester=?, year=?, capacity=?
@@ -261,13 +171,7 @@ public class SectionRepository {
 
     public List<SectionAssignment> fetchSectionAssignments() throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.section_code,
-                       c.code AS course_code,
-                       c.title AS course_title,
-                       s.semester,
-                       s.year,
-                       s.instructor_id
+                SELECT s.section_id, s.section_code, c.code AS course_code, c.title AS course_title, s.semester, s.year, s.instructor_id
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 ORDER BY c.title, s.section_code
@@ -278,15 +182,7 @@ public class SectionRepository {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Integer instructorId = rs.getObject("instructor_id") != null ? rs.getInt("instructor_id") : null;
-                assignments.add(new SectionAssignment(
-                        rs.getInt("section_id"),
-                        rs.getString("section_code"),
-                        rs.getString("course_code"),
-                        rs.getString("course_title"),
-                        rs.getString("semester"),
-                        rs.getInt("year"),
-                        instructorId
-                ));
+                assignments.add(new SectionAssignment( rs.getInt("section_id"), rs.getString("section_code"), rs.getString("course_code"), rs.getString("course_title"), rs.getString("semester"), rs.getInt("year"), instructorId));
             }
         }
         return assignments;
@@ -297,6 +193,7 @@ public class SectionRepository {
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             if (instructorId == null) {
+                // JDBC does not know what type null is, so we have to specify it NULL INTEGER.
                 stmt.setNull(1, java.sql.Types.INTEGER);
             } else {
                 stmt.setInt(1, instructorId);
@@ -308,17 +205,7 @@ public class SectionRepository {
 
     public List<SectionDetail> findSectionsByInstructor(int instructorId) throws Exception {
         String sql = """
-                SELECT s.section_id,
-                       s.course_id,
-                       c.code,
-                       c.title,
-                       s.section_code,
-                       s.day,
-                       s.time,
-                       s.room,
-                       s.semester,
-                       s.year,
-                       s.capacity
+                SELECT s.section_id, s.course_id, c.code, c.title, s.section_code, s.day, s.time, s.room, s.semester, s.year, s.capacity
                 FROM sections s
                 JOIN courses c ON s.course_id = c.course_id
                 WHERE s.instructor_id = ?
@@ -330,19 +217,7 @@ public class SectionRepository {
             stmt.setInt(1, instructorId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new SectionDetail(
-                            rs.getInt("section_id"),
-                            rs.getInt("course_id"),
-                            rs.getString("code"),
-                            rs.getString("title"),
-                            rs.getString("section_code"),
-                            rs.getString("day"),
-                            rs.getString("time"),
-                            rs.getString("room"),
-                            rs.getString("semester"),
-                            rs.getInt("year"),
-                            rs.getInt("capacity")
-                    ));
+                    list.add(new SectionDetail(rs.getInt("section_id"), rs.getInt("course_id"), rs.getString("code"), rs.getString("title"), rs.getString("section_code"), rs.getString("day"), rs.getString("time"), rs.getString("room"), rs.getString("semester"), rs.getInt("year"), rs.getInt("capacity")));
                 }
             }
         }

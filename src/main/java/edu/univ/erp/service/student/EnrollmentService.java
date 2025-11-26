@@ -5,6 +5,7 @@ import edu.univ.erp.data.repository.SectionRepository;
 import edu.univ.erp.domain.EnrolledSection;
 import edu.univ.erp.domain.SectionAvailability;
 import edu.univ.erp.domain.SectionSummary;
+import edu.univ.erp.domain.TimetableEntry;
 import edu.univ.erp.service.admin.DropDeadlineService;
 
 import java.util.ArrayList;
@@ -47,8 +48,7 @@ public class EnrollmentService {
     public RegistrationResult registerForSections(int studentId, List<Integer> sectionIds) throws Exception {
         RegistrationResult result = new RegistrationResult();
         for (int sectionId : sectionIds) {
-            SectionSummary summary = sectionRepository.findById(sectionId)
-                    .orElse(null);
+            SectionSummary summary = sectionRepository.findById(sectionId).orElse(null);
             if (summary == null) {
                 result.errorMessages.add("• Section ID " + sectionId + ": Section not found");
                 continue;
@@ -80,14 +80,13 @@ public class EnrollmentService {
         return enrollmentRepository.findEnrolledSections(studentId);
     }
 
-    public List<edu.univ.erp.domain.TimetableEntry> loadTimetable(int studentId) throws Exception {
+    public List<TimetableEntry> loadTimetable(int studentId) throws Exception {
         return enrollmentRepository.findTimetableEntries(studentId);
     }
 
     public DropResult dropSections(int studentId, List<Integer> sectionIds) throws Exception {
         DropResult result = new DropResult();
         
-        // Check if drop deadline has passed
         if (deadlineService.isDropDeadlinePassed()) {
             result.deadlineExceeded = true;
             return result;

@@ -21,16 +21,7 @@ public class BackupService {
             "mysqldump.exe"
     );
 
-    private static final List<String> MYSQL_PATHS = Arrays.asList(
-            "C:\\Program Files\\MySQL\\MySQL Server 9.4\\bin\\mysql.exe",
-            "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe",
-            "C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin\\mysql.exe",
-            "C:\\xampp\\mysql\\bin\\mysql.exe",
-            "mysql.exe"
-    );
-
     private final String mysqldumpExecutable;
-    private final String mysqlExecutable;
     private final String username;
     private final String password;
 
@@ -42,7 +33,6 @@ public class BackupService {
         this.username = username;
         this.password = password;
         this.mysqldumpExecutable = locateExecutable(MYSQLDUMP_PATHS);
-        this.mysqlExecutable = locateExecutable(MYSQL_PATHS);
     }
 
     public ProcessResult backupDatabase(DatabaseTarget target, File destination) throws Exception {
@@ -51,26 +41,17 @@ public class BackupService {
                 mysqldumpExecutable,
                 "-u", username,
                 "-p" + password,
+                // Use same snapshot for all tables
                 "--single-transaction",
+                // Include stored procedures
                 "--routines",
+                // Include automatic actions
                 "--triggers",
                 target.getDatabaseName()
         );
         builder.redirectOutput(destination);
         builder.redirectErrorStream(true);
         return execute(builder, "Backup " + target.getDatabaseName());
-    }
-
-    public ProcessResult restoreDatabase(DatabaseTarget target, File source) throws Exception {
-        ProcessBuilder builder = new ProcessBuilder(
-                mysqlExecutable,
-                "-u", username,
-                "-p" + password,
-                target.getDatabaseName()
-        );
-        builder.redirectInput(source);
-        builder.redirectErrorStream(true);
-        return execute(builder, "Restore " + target.getDatabaseName());
     }
 
     private ProcessResult execute(ProcessBuilder builder, String operation) throws Exception {

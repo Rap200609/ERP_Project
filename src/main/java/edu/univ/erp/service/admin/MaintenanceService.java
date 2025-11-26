@@ -15,10 +15,8 @@ public class MaintenanceService {
         this.settingsRepository = settingsRepository;
     }
 
-    public boolean isMaintenanceModeOn() throws Exception {
-        return settingsRepository.getSettingValue(MAINTENANCE_KEY)
-                .map(value -> "ON".equalsIgnoreCase(value))
-                .orElse(false);
+    public boolean isMaintenanceModeOn() throws Exception { 
+        return settingsRepository.getSettingValue(MAINTENANCE_KEY).map(value -> "ON".equalsIgnoreCase(value)).orElse(false);
     }
 
     public void setMaintenanceMode(boolean on) throws Exception {

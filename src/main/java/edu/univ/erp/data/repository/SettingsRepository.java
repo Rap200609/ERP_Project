@@ -41,7 +41,6 @@ public class SettingsRepository {
             stmt.setString(2, key);
             int updated = stmt.executeUpdate();
             if (updated == 0) {
-                // Insert if missing
                 try (PreparedStatement insertStmt = conn.prepareStatement(
                         "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)") ) {
                     insertStmt.setString(1, key);

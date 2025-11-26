@@ -25,7 +25,11 @@ public class AdminMaintenanceApi {
     public ApiResponse setMaintenanceMode(boolean modeOn) {
         try {
             maintenanceService.setMaintenanceMode(modeOn);
-            return ApiResponse.success(modeOn ? "Maintenance mode enabled." : "Maintenance mode disabled.");
+            if(modeOn) {
+                return ApiResponse.success("Maintenance mode enabled.");
+            } else {
+                return ApiResponse.success("Maintenance mode disabled.");
+            }
         } catch (Exception ex) {
             return ApiResponse.failure("Failed to update maintenance mode: " + ex.getMessage());
         }
@@ -34,7 +38,11 @@ public class AdminMaintenanceApi {
     public ApiResponse toggleMaintenanceMode() {
         try {
             boolean newState = maintenanceService.toggleMaintenanceMode();
-            return ApiResponse.success(newState ? "Maintenance mode enabled." : "Maintenance mode disabled.");
+            if(newState) {
+                return ApiResponse.success("Maintenance mode enabled.");
+            } else {
+                return ApiResponse.success("Maintenance mode disabled.");
+            }
         } catch (Exception ex) {
             return ApiResponse.failure("Failed to toggle maintenance mode: " + ex.getMessage());
         }

@@ -1,4 +1,3 @@
-// Done
 package edu.univ.erp.domain;
 
 public class SectionAssignment {

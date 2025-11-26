@@ -5,6 +5,7 @@ import edu.univ.erp.domain.ComponentStats;
 import edu.univ.erp.domain.GradeComponent;
 import edu.univ.erp.domain.SectionDetail;
 import edu.univ.erp.domain.StudentProfile;
+import edu.univ.erp.domain.GradeExportRow;
 import edu.univ.erp.service.instructor.InstructorService;
 
 import java.util.Collections;
@@ -42,7 +43,6 @@ public class InstructorApi {
         try {
             return instructorService.loadGradesForStudent(studentId, sectionId);
         } catch (RuntimeException ex) {
-            // unwrap the runtime exception used in loadGradesForStudent
             return Collections.emptyList();
         } catch (Exception ex) {
             return Collections.emptyList();
@@ -92,7 +92,8 @@ public class InstructorApi {
         }
     }
 
-    public List<edu.univ.erp.domain.GradeExportRow> loadGradesForExport(int instructorId) {
+    // instructorId is passed to ensure only their sections' grades are exported
+    public List<GradeExportRow> loadGradesForExport(int instructorId) {
         try {
             return instructorService.getGradesForExport(instructorId);
         } catch (Exception ex) {

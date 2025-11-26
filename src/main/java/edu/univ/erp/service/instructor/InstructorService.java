@@ -7,6 +7,7 @@ import edu.univ.erp.domain.ComponentStats;
 import edu.univ.erp.domain.GradeComponent;
 import edu.univ.erp.domain.SectionDetail;
 import edu.univ.erp.domain.StudentProfile;
+import edu.univ.erp.domain.GradeExportRow;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +22,7 @@ public class InstructorService {
         this(new SectionRepository(), new EnrollmentRepository(), new GradeRepository());
     }
 
-    public InstructorService(SectionRepository sectionRepository,
-                             EnrollmentRepository enrollmentRepository,
-                             GradeRepository gradeRepository) {
+    public InstructorService(SectionRepository sectionRepository, EnrollmentRepository enrollmentRepository, GradeRepository gradeRepository) {
         this.sectionRepository = sectionRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.gradeRepository = gradeRepository;
@@ -76,7 +75,7 @@ public class InstructorService {
         return gradeRepository.findComponentStatsForSection(sectionId);
     }
 
-    public List<edu.univ.erp.domain.GradeExportRow> getGradesForExport(int instructorId) throws Exception {
+    public List<GradeExportRow> getGradesForExport(int instructorId) throws Exception {
         return gradeRepository.findGradesForExport(instructorId);
     }
 }
