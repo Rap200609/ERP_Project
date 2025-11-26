@@ -26,28 +26,5 @@ public class AdminBackupApi {
         }
     }
 
-    public ApiResponse restore(DatabaseTarget target, File source) {
-        try {
-            BackupService.ProcessResult result = backupService.restoreDatabase(target, source);
-            return result.isSuccess() ? ApiResponse.success(result.getMessage()) : ApiResponse.failure(result.getMessage());
-        } catch (Exception ex) {
-            return ApiResponse.failure("Restore failed: " + ex.getMessage());
-        }
-    }
 
-    public ApiResponse backupBoth(File mainDestination, File authDestination) {
-        ApiResponse main = backup(DatabaseTarget.MAIN, mainDestination);
-        if (!main.isSuccess()) {
-            return main;
-        }
-        return backup(DatabaseTarget.AUTH, authDestination);
-    }
-
-    public ApiResponse restoreBoth(File mainSource, File authSource) {
-        ApiResponse main = restore(DatabaseTarget.MAIN, mainSource);
-        if (!main.isSuccess()) {
-            return main;
-        }
-        return restore(DatabaseTarget.AUTH, authSource);
-    }
 }

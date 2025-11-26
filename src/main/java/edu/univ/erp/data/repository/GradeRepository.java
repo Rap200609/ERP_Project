@@ -2,6 +2,8 @@ package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
 import edu.univ.erp.domain.GradeComponent;
+import edu.univ.erp.domain.ComponentStats;
+import edu.univ.erp.domain.GradeExportRow;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -45,12 +47,7 @@ public class GradeRepository {
             stmt.setInt(1, enrollmentId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    components.add(new GradeComponent(
-                            rs.getString("component"),
-                            rs.getDouble("score"),
-                            rs.getDouble("max_score"),
-                            rs.getDouble("weight")
-                    ));
+                    components.add(new GradeComponent(rs.getString("component"),rs.getDouble("score"),rs.getDouble("max_score"),rs.getDouble("weight")));
                 }
             }
         }
@@ -120,7 +117,7 @@ public class GradeRepository {
         return components;
     }
 
-    public List<edu.univ.erp.domain.ComponentStats> findComponentStatsForSection(int sectionId) throws Exception {
+    public List<ComponentStats> findComponentStatsForSection(int sectionId) throws Exception {
         String sql = """
                 SELECT g.component,
                        AVG(g.score) AS avg_score,
@@ -132,25 +129,20 @@ public class GradeRepository {
                 GROUP BY g.component
                 ORDER BY g.component
                 """;
-        List<edu.univ.erp.domain.ComponentStats> stats = new ArrayList<>();
+        List<ComponentStats> stats = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, sectionId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    stats.add(new edu.univ.erp.domain.ComponentStats(
-                            rs.getString("component"),
-                            rs.getDouble("avg_score"),
-                            rs.getDouble("min_score"),
-                            rs.getDouble("max_score")
-                    ));
+                    stats.add(new ComponentStats(rs.getString("component"),rs.getDouble("avg_score"),rs.getDouble("min_score"),rs.getDouble("max_score")));
                 }
             }
         }
         return stats;
     }
 
-    public List<edu.univ.erp.domain.GradeExportRow> findGradesForExport(int instructorId) throws Exception {
+    public List<GradeExportRow> findGradesForExport(int instructorId) throws Exception {
         String sql = """
                 SELECT s.section_code, st.roll_no, g.component, g.score, g.final_grade
                 FROM grades g
@@ -160,19 +152,13 @@ public class GradeRepository {
                 WHERE s.instructor_id = ?
                 ORDER BY s.section_code, st.roll_no, g.component
                 """;
-        List<edu.univ.erp.domain.GradeExportRow> rows = new ArrayList<>();
+        List<GradeExportRow> rows = new ArrayList<>();
         try (Connection conn = mainDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, instructorId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    rows.add(new edu.univ.erp.domain.GradeExportRow(
-                            rs.getString("section_code"),
-                            rs.getString("roll_no"),
-                            rs.getString("component"),
-                            rs.getDouble("score"),
-                            rs.getObject("final_grade") != null ? rs.getDouble("final_grade") : null
-                    ));
+                    rows.add(new GradeExportRow(rs.getString("section_code"),rs.getString("roll_no"),rs.getString("component"),rs.getDouble("score"),rs.getObject("final_grade") != null ? rs.getDouble("final_grade") : null));
                 }
             }
         }

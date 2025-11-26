@@ -1,4 +1,3 @@
--- Done
 -- ============================================
 -- Seed Data for University ERP System
 -- Based on PDF requirements: admin, inst1, stu1, stu2

@@ -1,7 +1,6 @@
 package edu.univ.erp.service.student;
 
 import edu.univ.erp.data.repository.EnrollmentRepository;
-import edu.univ.erp.data.repository.GradeRepository;
 import edu.univ.erp.data.repository.StudentRepository;
 import edu.univ.erp.data.repository.UserRepository;
 import edu.univ.erp.domain.StudentCourseOption;
@@ -15,7 +14,9 @@ import java.util.Optional;
 
 public class TranscriptService {
     public static class TranscriptData {
+        // For username to be displayed on transcript
         public UserAccount account;
+        // For rollnumber to be displayed on transcript
         public StudentProfile studentProfile;
         public List<TranscriptRow> rows = new ArrayList<>();
     }
@@ -29,10 +30,7 @@ public class TranscriptService {
         this(new EnrollmentRepository(), new GradeService(), new StudentRepository(), new UserRepository());
     }
 
-    public TranscriptService(EnrollmentRepository enrollmentRepository,
-                             GradeService gradeService,
-                             StudentRepository studentRepository,
-                             UserRepository userRepository) {
+    public TranscriptService(EnrollmentRepository enrollmentRepository, GradeService gradeService, StudentRepository studentRepository, UserRepository userRepository) {
         this.enrollmentRepository = enrollmentRepository;
         this.gradeService = gradeService;
         this.studentRepository = studentRepository;
@@ -56,12 +54,7 @@ public class TranscriptService {
                     letterGrade = gradeService.calculateLetterGrade(finalPercentage);
                 }
             }
-            data.rows.add(new TranscriptRow(
-                    option.getSectionCode(),
-                    option.getCourseTitle(),
-                    finalPercentage,
-                    letterGrade
-            ));
+            data.rows.add(new TranscriptRow(option.getSectionCode(), option.getCourseTitle(), finalPercentage, letterGrade));
         }
         return data;
     }

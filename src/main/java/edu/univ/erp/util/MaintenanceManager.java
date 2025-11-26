@@ -9,14 +9,11 @@ public final class MaintenanceManager {
     private MaintenanceManager() {
     }
 
-    /**
-     * Check if maintenance mode is currently ON
-     */
     public static boolean isMaintenanceModeOn() {
         try {
             return maintenanceService.isMaintenanceModeOn();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to check maintenance mode: " + e.getMessage());
             return false;
         }
     }

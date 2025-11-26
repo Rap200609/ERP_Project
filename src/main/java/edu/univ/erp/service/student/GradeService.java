@@ -5,7 +5,6 @@ import edu.univ.erp.data.repository.GradeRepository;
 import edu.univ.erp.domain.GradeComponent;
 import edu.univ.erp.domain.StudentCourseOption;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,8 +43,14 @@ public class GradeService {
             return Optional.empty();
         }
         List<GradeComponent> components = gradeRepository.findGradesForEnrollment(enrollmentIdOpt.get());
-        double totalWeight = components.stream().mapToDouble(GradeComponent::getWeight).sum();
-        double weightedScore = components.stream().mapToDouble(GradeComponent::getWeightedContribution).sum();
+        double totalWeight = 0;
+        for (GradeComponent comp : components) {
+            totalWeight += comp.getWeight();
+        }
+        double weightedScore = 0;
+        for (GradeComponent comp : components) {
+            weightedScore += comp.getWeightedContribution();
+        }
         return Optional.of(new GradeSummary(components, totalWeight, weightedScore));
     }
 

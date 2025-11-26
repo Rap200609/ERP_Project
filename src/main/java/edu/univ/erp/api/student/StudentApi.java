@@ -65,14 +65,18 @@ public class StudentApi {
             StringBuilder message = new StringBuilder();
             if (!result.successfulSections.isEmpty()) {
                 message.append("Successfully registered for:\n");
-                result.successfulSections.forEach(s -> message.append("✓ ").append(s).append("\n"));
+                for (String section : result.successfulSections) {
+                    message.append("✓ ").append(section).append("\n");
+                }
             }
             if (!result.errorMessages.isEmpty()) {
                 if (message.length() > 0) {
                     message.append("\n");
                 }
                 message.append("Registration failed:\n");
-                result.errorMessages.forEach(msg -> message.append(msg).append("\n"));
+                for (String error : result.errorMessages) {
+                    message.append("• ").append(error).append("\n");
+                }
             }
             boolean success = !result.successfulSections.isEmpty() && result.errorMessages.isEmpty();
             return ApiResponse.of(success, message.toString().trim());
@@ -146,7 +150,13 @@ public class StudentApi {
     }
 
     public ApiResponse validateSelection(List<Boolean> selections) {
-        boolean any = selections.stream().anyMatch(Boolean.TRUE::equals);
+        boolean any = false;
+        for (Boolean isChecked : selections) {
+            if (isChecked == true) {
+                any = true;
+                break;
+            }
+        }
         if (!any) {
             return ApiResponse.failure("No rows selected.");
         }
