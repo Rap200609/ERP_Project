@@ -1,3 +1,4 @@
+// Done
 package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
@@ -29,12 +30,7 @@ public class UserRepository {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT user_id, username, role, status FROM users_auth")) {
             while (rs.next()) {
-                users.add(new UserAccount(
-                        rs.getInt("user_id"),
-                        rs.getString("username"),
-                        rs.getString("role"),
-                        rs.getString("status")
-                ));
+                users.add(new UserAccount(rs.getInt("user_id"),rs.getString("username"),rs.getString("role"),rs.getString("status")));
             }
         }
         return users;
@@ -43,11 +39,12 @@ public class UserRepository {
     public int createUser(String username, String role, String passwordHash) throws Exception {
         String sql = "INSERT INTO users_auth (username, role, password_hash) VALUES (?, ?, ?)";
         try (Connection conn = authDataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, username);
             stmt.setString(2, role);
             stmt.setString(3, passwordHash);
             stmt.executeUpdate();
+            // Here we retrieve the generated user_id
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
                     return keys.getInt(1);
@@ -85,11 +82,7 @@ public class UserRepository {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new UserAccount(
-                            rs.getInt("user_id"),
-                            rs.getString("username"),
-                            rs.getString("role"),
-                            rs.getString("status")
+                    return Optional.of(new UserAccount(    rs.getInt("user_id"),    rs.getString("username"),    rs.getString("role"),    rs.getString("status")
                     ));
                 }
             }

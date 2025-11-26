@@ -1,3 +1,4 @@
+// Done
 package edu.univ.erp.data.repository;
 
 import edu.univ.erp.data.DatabaseConfig;
@@ -40,13 +41,7 @@ public class StudentRepository {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(new StudentProfile(
-                            userId,
-                            rs.getString("roll_no"),
-                            rs.getString("program"),
-                            rs.getInt("year"),
-                            rs.getString("email")
-                    ));
+                    return Optional.of(new StudentProfile(userId,rs.getString("roll_no"),rs.getString("program"),rs.getInt("year"),rs.getString("email")));
                 }
             }
         }

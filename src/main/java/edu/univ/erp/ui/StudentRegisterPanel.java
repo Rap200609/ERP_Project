@@ -81,17 +81,31 @@ public class StudentRegisterPanel extends JPanel {
     }
 
     private void registerSelectedSections() {
-        List<String> sectionCodes = new ArrayList<>();
+        List<Integer> sectionIds = new ArrayList<>();
         for (int i = 0; i < catalogModel.getRowCount(); i++) {
             Boolean selected = (Boolean) catalogModel.getValueAt(i, 4);
             if (Boolean.TRUE.equals(selected)) {
-                sectionCodes.add((String) catalogModel.getValueAt(i, 0));
+                // Get the section code and look it up to find its ID
+                String sectionCode = (String) catalogModel.getValueAt(i, 0);
+                String courseTitle = (String) catalogModel.getValueAt(i, 1);
+                // Store both code and course for lookup
+                sectionIds.add(findSectionId(sectionCode, courseTitle));
             }
         }
-        ApiResponse response = studentApi.registerSections(studentId, sectionCodes);
+        ApiResponse response = studentApi.registerSections(studentId, sectionIds);
         JOptionPane.showMessageDialog(this, response.getMessage(),
                 "Registration Results",
                 response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
         loadCatalog();
+    }
+
+    private int findSectionId(String sectionCode, String courseTitle) {
+        List<SectionAvailability> sections = studentApi.loadRegistrationCatalog();
+        for (SectionAvailability section : sections) {
+            if (section.getSectionCode().equals(sectionCode) && section.getCourseTitle().equals(courseTitle)) {
+                return section.getSectionId();
+            }
+        }
+        return -1;
     }
 }

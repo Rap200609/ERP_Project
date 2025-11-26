@@ -37,6 +37,7 @@ public class AdminDashboard extends JFrame {
             "Manage Courses",
             "Manage Sections",
             "Assign Instructor",
+            "Drop Deadline",
             "Maintenance Mode",
             "Backup/Restore",
             "Change Password",
@@ -100,6 +101,9 @@ public class AdminDashboard extends JFrame {
                 break;
             case "Assign Instructor":
                 panel = new AssignInstructorPanel();
+                break;
+            case "Drop Deadline":
+                panel = new DropDeadlinePanel();
                 break;
             case "Maintenance Mode":
                 panel = new MaintenanceModePanel();

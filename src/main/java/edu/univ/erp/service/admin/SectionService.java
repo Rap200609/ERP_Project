@@ -1,3 +1,4 @@
+// Done
 package edu.univ.erp.service.admin;
 
 import edu.univ.erp.data.repository.CourseRepository;
@@ -32,9 +33,7 @@ public class SectionService {
         this(new SectionRepository(), new CourseRepository(), new InstructorRepository());
     }
 
-    public SectionService(SectionRepository sectionRepository,
-                          CourseRepository courseRepository,
-                          InstructorRepository instructorRepository) {
+    public SectionService(SectionRepository sectionRepository, CourseRepository courseRepository, InstructorRepository instructorRepository) {
         this.sectionRepository = sectionRepository;
         this.courseRepository = courseRepository;
         this.instructorRepository = instructorRepository;
@@ -53,30 +52,11 @@ public class SectionService {
     }
 
     public void createSection(SectionCommand command) throws Exception {
-        sectionRepository.createSection(
-                command.courseId,
-                command.sectionCode,
-                command.day,
-                command.time,
-                command.room,
-                command.semester,
-                command.year,
-                command.capacity
-        );
+        sectionRepository.createSection(command.courseId, command.sectionCode, command.day, command.time, command.room, command.semester, command.year, command.capacity);
     }
 
     public void updateSection(int sectionId, SectionCommand command) throws Exception {
-        sectionRepository.updateSection(
-                sectionId,
-                command.courseId,
-                command.sectionCode,
-                command.day,
-                command.time,
-                command.room,
-                command.semester,
-                command.year,
-                command.capacity
-        );
+        sectionRepository.updateSection(sectionId, command.courseId, command.sectionCode, command.day, command.time, command.room, command.semester, command.year, command.capacity);
     }
 
     public void deleteSection(int sectionId) throws Exception {

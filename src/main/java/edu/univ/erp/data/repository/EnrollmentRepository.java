@@ -34,6 +34,22 @@ public class EnrollmentRepository {
         }
     }
 
+    public boolean isStudentEnrolledInCourse(int studentId, int courseId) throws Exception {
+        String sql = """
+                SELECT enrollment_id FROM enrollments e
+                JOIN sections s ON e.section_id = s.section_id
+                WHERE e.student_id = ? AND s.course_id = ? AND e.status = 'ENROLLED'
+                """;
+        try (Connection conn = mainDataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            stmt.setInt(2, courseId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public int countEnrolledInSection(int sectionId) throws Exception {
         String sql = "SELECT COUNT(*) FROM enrollments WHERE section_id = ? AND status = 'ENROLLED'";
         try (Connection conn = mainDataSource.getConnection();
@@ -58,14 +74,15 @@ public class EnrollmentRepository {
 
     public List<EnrolledSection> findEnrolledSections(int studentId) throws Exception {
         String sql = """
-                SELECT s.section_code,
+                SELECT s.section_id,
+                       s.section_code,
                        c.title,
-                       u.username AS instructor
+                       COALESCE(u.username, 'TBA') AS instructor
                 FROM enrollments e
                 JOIN sections s ON e.section_id = s.section_id
                 JOIN courses c ON s.course_id = c.course_id
-                JOIN instructors i ON s.instructor_id = i.user_id
-                JOIN erp_auth.users_auth u ON i.user_id = u.user_id
+                LEFT JOIN instructors i ON s.instructor_id = i.user_id
+                LEFT JOIN erp_auth.users_auth u ON i.user_id = u.user_id
                 WHERE e.student_id = ? AND e.status = 'ENROLLED'
                 ORDER BY c.title
                 """;
@@ -76,6 +93,7 @@ public class EnrollmentRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(new EnrolledSection(
+                            rs.getInt("section_id"),
                             rs.getString("section_code"),
                             rs.getString("title"),
                             rs.getString("instructor")
@@ -155,6 +173,19 @@ public class EnrollmentRepository {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             stmt.setString(2, sectionCode);
+            return stmt.executeUpdate();
+        }
+    }
+
+    public int dropEnrollment(int studentId, int sectionId) throws Exception {
+        String sql = """
+                DELETE FROM enrollments
+                WHERE student_id = ? AND section_id = ?
+                """;
+        try (Connection conn = mainDataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            stmt.setInt(2, sectionId);
             return stmt.executeUpdate();
         }
     }

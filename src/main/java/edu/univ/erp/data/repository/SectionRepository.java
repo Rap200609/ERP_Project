@@ -60,6 +60,7 @@ public class SectionRepository {
     public Optional<SectionSummary> findByCode(String sectionCode) throws Exception {
         String sql = """
                 SELECT s.section_id,
+                       s.course_id,
                        s.section_code,
                        s.capacity,
                        c.title
@@ -74,6 +75,36 @@ public class SectionRepository {
                 if (rs.next()) {
                     return Optional.of(new SectionSummary(
                             rs.getInt("section_id"),
+                            rs.getInt("course_id"),
+                            rs.getString("section_code"),
+                            rs.getString("title"),
+                            rs.getInt("capacity")
+                    ));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<SectionSummary> findById(int sectionId) throws Exception {
+        String sql = """
+                SELECT s.section_id,
+                       s.course_id,
+                       s.section_code,
+                       s.capacity,
+                       c.title
+                FROM sections s
+                JOIN courses c ON s.course_id = c.course_id
+                WHERE s.section_id = ?
+                """;
+        try (Connection conn = mainDataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, sectionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new SectionSummary(
+                            rs.getInt("section_id"),
+                            rs.getInt("course_id"),
                             rs.getString("section_code"),
                             rs.getString("title"),
                             rs.getInt("capacity")

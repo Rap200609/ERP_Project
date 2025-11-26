@@ -1,3 +1,4 @@
+// Done
 package edu.univ.erp.domain;
 
 public class SectionDetail {
@@ -13,17 +14,7 @@ public class SectionDetail {
     private final int year;
     private final int capacity;
 
-    public SectionDetail(int sectionId,
-                         int courseId,
-                         String courseCode,
-                         String courseTitle,
-                         String sectionCode,
-                         String day,
-                         String time,
-                         String room,
-                         String semester,
-                         int year,
-                         int capacity) {
+    public SectionDetail(int sectionId,int courseId,String courseCode,String courseTitle,String sectionCode,String day,String time,String room,String semester,int year,int capacity) {
         this.sectionId = sectionId;
         this.courseId = courseId;
         this.courseCode = courseCode;

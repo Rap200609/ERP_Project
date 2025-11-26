@@ -5,14 +5,18 @@ import edu.univ.erp.domain.ComponentStats;
 import edu.univ.erp.domain.SectionDetail;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InstructorStatsPanel extends JPanel {
     private final InstructorApi instructorApi = new InstructorApi();
     private final JComboBox<String> sectionBox;
-    private final JTextArea statsArea;
+    private final JLabel sectionSummaryLabel;
+    private final DefaultTableModel statsModel;
+    private final JTable statsTable;
     private final int instructorId;
     private final Map<String, Integer> sectionIdMap = new HashMap<>();
 
@@ -23,11 +27,6 @@ public class InstructorStatsPanel extends JPanel {
 
         sectionBox = new JComboBox<>();
         UITheme.styleComboBox(sectionBox);
-        statsArea = new JTextArea(10, 60);
-        statsArea.setEditable(false);
-        statsArea.setFont(UITheme.FONT_BODY);
-        statsArea.setBackground(UITheme.BG_PANEL);
-        statsArea.setBorder(UITheme.BORDER_FIELD);
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setBackground(UITheme.BG_MAIN);
@@ -39,51 +38,75 @@ public class InstructorStatsPanel extends JPanel {
         JButton refreshBtn = new JButton("Show Stats");
         UITheme.stylePrimaryButton(refreshBtn);
         topPanel.add(refreshBtn);
-
         add(topPanel, BorderLayout.NORTH);
-        JScrollPane scrollPane = new JScrollPane(statsArea);
-        UITheme.styleScrollPane(scrollPane);
-        add(scrollPane, BorderLayout.CENTER);
+
+        sectionSummaryLabel = new JLabel("Select a section to view statistics");
+        UITheme.styleLabel(sectionSummaryLabel, true);
+
+        statsModel = new DefaultTableModel(new String[]{"Component", "Average", "Minimum", "Maximum"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        statsTable = new JTable(statsModel);
+        UITheme.styleTable(statsTable);
+        JScrollPane tableScroll = new JScrollPane(statsTable);
+        UITheme.styleScrollPane(tableScroll);
+
+        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+        centerPanel.setBackground(UITheme.BG_MAIN);
+        centerPanel.setBorder(new javax.swing.border.EmptyBorder(10, 10, 10, 10));
+        centerPanel.add(sectionSummaryLabel, BorderLayout.NORTH);
+        centerPanel.add(tableScroll, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
 
         loadSections();
 
         refreshBtn.addActionListener(e -> showStats());
-
-        if (sectionBox.getItemCount() > 0) {
-            showStats();
-        }
+        sectionBox.addActionListener(e -> showStats());
     }
 
     private void loadSections() {
         sectionBox.removeAllItems();
         sectionIdMap.clear();
-        for (SectionDetail section : instructorApi.listSections(instructorId)) {
-            String display = section.getSectionId() + ":" + section.getSectionCode();
+        List<SectionDetail> sections = instructorApi.listSections(instructorId);
+        for (SectionDetail section : sections) {
+            String display = String.format("%s - %s", section.getCourseDisplay(), section.getSectionCode());
             sectionIdMap.put(display, section.getSectionId());
             sectionBox.addItem(display);
+        }
+        if (sectionBox.getItemCount() == 0) {
+            sectionSummaryLabel.setText("No sections assigned.");
         }
     }
 
     private void showStats() {
-        statsArea.setText("");
-        if (sectionBox.getSelectedItem() == null) {
+        statsModel.setRowCount(0);
+        String selected = (String) sectionBox.getSelectedItem();
+        if (selected == null) {
+            sectionSummaryLabel.setText("Select a section to view statistics");
             return;
         }
-        String selected = (String) sectionBox.getSelectedItem();
         Integer sectionId = sectionIdMap.get(selected);
         if (sectionId == null) {
-            statsArea.append("Error: Invalid section selection");
+            sectionSummaryLabel.setText("Invalid section selection");
             return;
         }
+        sectionSummaryLabel.setText("Statistics for: " + selected);
 
-        statsArea.append("Component | Avg | Min | Max\n");
-        statsArea.append("-----------------------------------\n");
-        for (ComponentStats stat : instructorApi.loadComponentStats(sectionId)) {
-            statsArea.append(String.format("%s | %.2f | %.2f | %.2f\n",
+        List<ComponentStats> stats = instructorApi.loadComponentStats(sectionId);
+        if (stats.isEmpty()) {
+            sectionSummaryLabel.setText("No statistics available for: " + selected);
+            return;
+        }
+        for (ComponentStats stat : stats) {
+            statsModel.addRow(new Object[]{
                     stat.getComponent(),
-                    stat.getAverage(),
-                    stat.getMinimum(),
-                    stat.getMaximum()));
+                    String.format("%.2f", stat.getAverage()),
+                    String.format("%.2f", stat.getMinimum()),
+                    String.format("%.2f", stat.getMaximum())
+            });
         }
     }
 }

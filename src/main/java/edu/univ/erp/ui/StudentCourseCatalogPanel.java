@@ -32,7 +32,7 @@ public class StudentCourseCatalogPanel extends JPanel {
         add(headerPanel, BorderLayout.NORTH);
         
         // Table panel
-        String[] cols = {"Course Code", "Title", "Credits", "Instructor", "Capacity"};
+        String[] cols = {"Course Code", "Title", "Credits", "Section", "Instructor", "Capacity"};
         model = new DefaultTableModel(cols, 0);
         JTable table = new JTable(model);
         UITheme.styleTable(table);
@@ -51,6 +51,7 @@ public class StudentCourseCatalogPanel extends JPanel {
                     entry.getCourseCode(),
                     entry.getTitle(),
                     entry.getCredits(),
+                    entry.getSectionCode() != null ? entry.getSectionCode() : "-",
                     entry.getInstructorIdentifier(),
                     entry.getCapacity()
             });
